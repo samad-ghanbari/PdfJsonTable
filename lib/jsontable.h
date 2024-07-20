@@ -3,6 +3,7 @@
 // row-object: { type, value, style }               	QJsonObject
 // row: [ row-object-1 , row-object-2, row-object-3 ]	QJsonArray
 // table: [ row-1, row-2 , ... ]                        QJsonArray
+// empty row means go to new page
 
 /*
 style: { width; height; background-color; color; font-size; font-family; }

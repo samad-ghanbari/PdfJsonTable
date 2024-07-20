@@ -16,15 +16,15 @@ class PdfJsonTable : public QObject
 {
     Q_OBJECT
 public:
-    explicit PdfJsonTable(QJsonArray &table, QObject *parent = nullptr);
+    explicit PdfJsonTable(QJsonArray &header, QJsonArray &table, QObject *parent = nullptr);
 
     void preparePage();
     bool printTable(QPrinter *printer);
-    bool print(QString outputPath, QString Creator, QString DocName, QString Program);
+    bool print(QString outputPath, QString Creator, QString DocName);
     QString lastError();
 
 private:
-    QJsonArray &jsonTable;
+    QJsonArray &jsonHeader, &jsonTable;
     QPainter *painter;
     QPen pen; // for table borders
 
