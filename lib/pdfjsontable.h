@@ -33,6 +33,10 @@ private:
 
     QString error;
 
+    //paper size
+    double paperWidth, paperHeight, width, height;
+    int fontSize;
+    QString font;
 
     // cell margins
     int topMargin;

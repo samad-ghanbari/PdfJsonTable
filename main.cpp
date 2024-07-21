@@ -9,8 +9,9 @@ int main(int argc, char *argv[])
 {
     QApplication a(argc, argv);
 
-    JsonTable *jt = new JsonTable(50,40, "#eee", "#333", 14, "tahoma");
-    QJsonObject style = jt->createStyle(100, 50, "#fefefe", "#000", 14, "tahoma");
+    JsonTable *jt = new JsonTable(0,50, "#eee", "#333", 14, "tahoma");
+    // 420mm /3 * 3.7 = 518
+    QJsonObject style = jt->createStyle(518, 100, "#DDF", "#00d", 14, "tahoma");
     QJsonArray row = jt->createObjects("text", {"2024", "Report", "DaNet"},style);
     jt->addRowToTable(row);
 
