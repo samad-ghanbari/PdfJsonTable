@@ -14,7 +14,7 @@ JsonTable::JsonTable(double _default_width, double _default_height, QString _def
     this->default_font_family = _default_font_family;
 }
 
-QJsonObject JsonTable::createStyle(double _width, double _height, QString _backgroundColor, QString _color, double _fontSize, QString _fontFamily, int rowSpan)
+QJsonObject JsonTable::createStyle(double _width, double _height, QString _backgroundColor, QString _color, double _fontSize, bool _bold, QString _fontFamily, int rowSpan)
 {
     QJsonObject obj;
     obj["width"] = (_width == 0)? default_width : _width;
@@ -23,6 +23,7 @@ QJsonObject JsonTable::createStyle(double _width, double _height, QString _backg
     obj["color"] = (_color.isNull())? default_color : _color;
     obj["font-size"]= (_fontSize == 0)? default_font_size : _fontSize;
     obj["font-family"]= (_fontFamily.isNull())? default_font_family : _fontFamily;
+    obj["bold"]= _bold;
     obj["row-span"] = rowSpan; // 0:default -1:skip n>0:n-span this field will be updated by rowSpanAnalyser
     return obj;
 }
@@ -70,6 +71,13 @@ QJsonArray JsonTable::addArrayToRow(QJsonArray &row, QJsonArray array)
 
 void JsonTable::addRowToTable(QJsonArray &row)
 {
+    table.append(row);
+}
+
+void JsonTable::addRowToTable()
+{
+    // add empty row
+    QJsonArray row;
     table.append(row);
 }
 

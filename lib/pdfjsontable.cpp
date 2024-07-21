@@ -8,7 +8,6 @@ PdfJsonTable::PdfJsonTable(QJsonArray &header, QJsonArray &table, QObject *paren
 {
     pageNumber = 1;
     error = "";
-
 }
 
 void PdfJsonTable::preparePage()
@@ -71,8 +70,10 @@ void PdfJsonTable::preparePage()
                 style = obj.value("style").toObject();
                 width = style.value("width").toDouble();
                 height = style.value("height").toDouble();
-                fontSize = style.value("font-size").toInt();
-                font = style.value("font-family").toInt();
+                font.setFamily(style.value("font-family").toString());
+                font.setPixelSize(style.value("font-size").toInt());
+                font.setBold(style.value("bold").toBool());
+
                 if(width == 0)
                     width = paperWidth/(row.count());
                 height = (height == 0)? 50 : height;
@@ -80,6 +81,7 @@ void PdfJsonTable::preparePage()
                 QRect rect(0,0,width, height );
                 QColor color(style.value("color").toString());
                 painter->setPen(color);
+                painter->setFont(font);
                 QBrush brush(Qt::red);
                 painter->setBrush(brush);
                 if(!style.value("background-color").toString().isNull())
@@ -125,14 +127,17 @@ bool PdfJsonTable::printTable(QPrinter *printer)
         return false;
     }
 
+    //painter->setViewport(0,0,1584,1123);
     paperWidth = painter->viewport().width();
     paperHeight = painter->viewport().height();
-
-    qDebug() << paperWidth << paperHeight;
-    //1562
-    //1562 1097
-
+    // A3 11.7 in x 16.5 in
+    // dpi 96 standard
+    // 11.7 * 96 = 1123.2
+    // 16.5 * 96 = 1584 >> 1588 1123
+    // default padding left right 11
+    // default padding top bottom 13.1
     preparePage();
+
 
 
     painter->end();
@@ -140,40 +145,35 @@ bool PdfJsonTable::printTable(QPrinter *printer)
     return true;
 }
 
-bool PdfJsonTable::print(QString outputPath, QString Creator, QString DocName)
+#if QT_VERSION > 0x051210
+bool PdfJsonTable::print(QString outputPath, QString Creator, QString DocName, QPageSize::PageSizeId  pageSize, qreal pageMarginLeft, qreal pageMarginTop, qreal pageMarginRight, qreal pageMarginBottom)
 {
-    //Qt 5
-    QPrinter *printer = new QPrinter(QPrinter::ScreenResolution);
+    QPrinter *printer = new QPrinter(QPrinter::ScreenResolution); //dpi  96
+
+    //Qt 6
+    printer->setPageOrientation(QPageLayout::Landscape);
+    printer->setPageSize(pageSize);
+    printer->setDocName(DocName);
+    printer->setCreator(Creator);
+    printer->setOutputFileName(outputPath);
+    QMarginsF margins(pageMarginLeft/96,pageMarginTop/96,pageMarginRight/96, pageMarginBottom/96);
+    printer->setPageMargins(margins, QPageLayout::Inch );
+    // A3 : 1580 1119
+
+    if(printTable(printer))
+        return true;
+    else
+        return false;
+}
+#else
+bool PdfJsonTable::print(QString outputPath, QString Creator, QString DocName,  QPrinter::PageSize  pageSize, qreal pageMarginLeft, qreal pageMarginTop, qreal pageMarginRight, qreal pageMarginBottom)
+    {
+    QPrinter *printer = new QPrinter(QPrinter::ScreenResolution); //dpi  96
     printer->setOutputFormat(QPrinter::PdfFormat);
     printer->setOrientation(QPrinter::Landscape);
-    printer->setPaperSize(QPrinter::A3);
-/*
-A0  841 x 1189 mm
-A1  594 x 841 mm
-A2  420 x 594 mm
-A3  297 x 420 mm  1097    1562    ~ 3.7
-A4  210 x 297 mm
-A5  148 x 210 mm
-A6  105 x 148 mm
-A7  74 x 105 mm
-A8  52 x 74 mm
-A9  37 x 52 mm
-
-B0  1030 x 1456 mm
-B1  728 x 1030 mm
-B2  515 x 728 mm
-B3  364 x 515 mm
-B4  257 x 364 mm
-B5  182 x 257 mm
-B6  128 x 182 mm
-B7  91 x 128 mm
-B8  64 x 91 mm
-B9  45 x 64 mm
-B10 32 x 45 mm
-
-Letter 216 x 279 mm
-
-*/
+    printer->setPaperSize(pageSize);
+    printer->setPageMargins(pageMarginLeft/96,pageMarginTop/96,pageMarginRight/96, pageMarginBottom/96, QPrinter::Inch );
+    // A3 : 1580 1119
     printer->setOutputFileName(outputPath);
     printer->setCreator(Creator);
     printer->setDocName(DocName);
@@ -182,20 +182,9 @@ Letter 216 x 279 mm
         return true;
     else
         return false;
-
-    //Qt 6
-//    QPrinter *printer = new QPrinter(QPrinter::ScreenResolution);
-//    printer->setPageOrientation(QPageLayout::Landscape);
-//    printer->setPageSize(QPageSize::A3);
-//    printer->setDocName(DocName);
-//    printer->setCreator(Creator);
-//    printer->setOutputFileName(outputPath);
-
-//    if(printTable(printer))
-//        return true;
-//    else
-//        return false;
 }
+#endif
+
 
 QString PdfJsonTable::lastError()
 {

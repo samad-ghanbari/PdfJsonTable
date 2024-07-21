@@ -9,9 +9,9 @@ int main(int argc, char *argv[])
 {
     QApplication a(argc, argv);
 
-    JsonTable *jt = new JsonTable(0,50, "#eee", "#333", 14, "tahoma");
+    JsonTable *jt = new JsonTable(0,50, "#eef", "#333", 24, "tahoma");
     // 420mm /3 * 3.7 = 518
-    QJsonObject style = jt->createStyle(518, 100, "#DDF", "#00d", 14, "tahoma");
+    QJsonObject style = jt->createStyle(0, 100, "#DDF", "#00d", 24,true, "tahoma");
     QJsonArray row = jt->createObjects("text", {"2024", "Report", "DaNet"},style);
     jt->addRowToTable(row);
 
@@ -20,7 +20,8 @@ int main(int argc, char *argv[])
     //ts << bytes << endl;
 
     PdfJsonTable *pdf = new PdfJsonTable(jt->table, jt->table);
-    pdf->print("Primary.pdf", "test", "danet");
+    //pdf->print("Primary.pdf", "test", "danet",QPageSize::A3);
+    pdf->print("Primary.pdf", "test", "danet",QPrinter::A3);
 
     return a.exec();
 }
