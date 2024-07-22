@@ -122,6 +122,47 @@ void PdfJsonTable::preparePage()
     painter->translate(0, 20);
 }
 
+#if QT_VERSION > 0x051210
+bool PdfJsonTable::print(QString outputPath, QString Creator, QString DocName, QPageSize::PageSizeId  pageSize, qreal pageMarginLeft, qreal pageMarginTop, qreal pageMarginRight, qreal pageMarginBottom)
+{
+    QPrinter *printer = new QPrinter(QPrinter::ScreenResolution); //dpi  96
+
+    //Qt 6
+    printer->setPageOrientation(QPageLayout::Landscape);
+    printer->setPageSize(pageSize);
+    printer->setDocName(DocName);
+    printer->setCreator(Creator);
+    printer->setOutputFileName(outputPath);
+    QMarginsF margins(pageMarginLeft/96,pageMarginTop/96,pageMarginRight/96, pageMarginBottom/96);
+    printer->setPageMargins(margins, QPageLayout::Inch );
+    // A3 : 1580 1119
+
+    if(printTable(printer))
+        return true;
+    else
+        return false;
+}
+#else
+bool PdfJsonTable::print(QString outputPath, QString Creator, QString DocName,  QPrinter::PageSize  pageSize, qreal pageMarginLeft, qreal pageMarginTop, qreal pageMarginRight, qreal pageMarginBottom)
+{
+    QPrinter *printer = new QPrinter(QPrinter::ScreenResolution); //dpi  96
+    printer->setOutputFormat(QPrinter::PdfFormat);
+    printer->setOrientation(QPrinter::Landscape);
+    printer->setPaperSize(pageSize);
+    printer->setPageMargins(pageMarginLeft/96,pageMarginTop/96,pageMarginRight/96, pageMarginBottom/96, QPrinter::Inch );
+    // A3 : 1580 1119
+    printer->setOutputFileName(outputPath);
+    printer->setCreator(Creator);
+    printer->setDocName(DocName);
+
+    if(printTable(printer))
+        return true;
+    else
+        return false;
+}
+#endif
+
+
 bool PdfJsonTable::printTable(QPrinter *printer)
 {
     if(!painter->begin(printer))
@@ -148,46 +189,135 @@ bool PdfJsonTable::printTable(QPrinter *printer)
     return true;
 }
 
-#if QT_VERSION > 0x051210
-bool PdfJsonTable::print(QString outputPath, QString Creator, QString DocName, QPageSize::PageSizeId  pageSize, qreal pageMarginLeft, qreal pageMarginTop, qreal pageMarginRight, qreal pageMarginBottom)
+bool PdfJsonTable::printCell(int row, int column, QJsonObject obj, double fullWidth)
 {
-    QPrinter *printer = new QPrinter(QPrinter::ScreenResolution); //dpi  96
+    // write from left
+    QString type = obj.value("type").toString();
+    QString value = obj.value("value").toString();
+    QJsonObject style = obj.value("style").toObject();
 
-    //Qt 6
-    printer->setPageOrientation(QPageLayout::Landscape);
-    printer->setPageSize(pageSize);
-    printer->setDocName(DocName);
-    printer->setCreator(Creator);
-    printer->setOutputFileName(outputPath);
-    QMarginsF margins(pageMarginLeft/96,pageMarginTop/96,pageMarginRight/96, pageMarginBottom/96);
-    printer->setPageMargins(margins, QPageLayout::Inch );
-    // A3 : 1580 1119
+    double width = style.value("width").toDouble();
+    double height = style.value("height").toDouble();
+    QString fontFamily = style.value("font-family").toString();
+    int fontSize = style.value("font-size").toInt();
+    bool bold = style.value("bold").toBool();
+    QString align = style.value("align").toString();
+    int rowSpan = style.value("row-span").toInt();
+    QString _color = style.value("color").toString();
+    QString _backgroundColor = style.value("background-color").toString();
 
-    if(printTable(printer))
-        return true;
+    if(rowSpan == -1) return true;
+    if(rowSpan > 1)
+          height = getRowSpanHeight(row, column);
+
+    QColor color, backgroundColor;
+    if(_color.isEmpty())
+        color.setNamedColor("#000");
     else
-        return false;
-}
-#else
-bool PdfJsonTable::print(QString outputPath, QString Creator, QString DocName,  QPrinter::PageSize  pageSize, qreal pageMarginLeft, qreal pageMarginTop, qreal pageMarginRight, qreal pageMarginBottom)
+        color.setNamedColor(_color);
+
+    if(_backgroundColor.isEmpty())
+        backgroundColor.setNamedColor("transparent");
+    else
+        backgroundColor.setNamedColor(_backgroundColor);
+
+    QFont font(fontFamily);
+    font.setPixelSize(fontSize);
+    font.setBold(bold);
+
+    height = (height == 0)? 50 : height;
+    width = (width == 0)? fullWidth : width;
+
+    painter->setPen(color);
+    painter->setFont(font);
+    QRect rect(0,0,width, height );
+    painter->fillRect(rect, backgroundColor);
+
+    if(type.compare("text", Qt::CaseInsensitive) == 0)
     {
-    QPrinter *printer = new QPrinter(QPrinter::ScreenResolution); //dpi  96
-    printer->setOutputFormat(QPrinter::PdfFormat);
-    printer->setOrientation(QPrinter::Landscape);
-    printer->setPaperSize(pageSize);
-    printer->setPageMargins(pageMarginLeft/96,pageMarginTop/96,pageMarginRight/96, pageMarginBottom/96, QPrinter::Inch );
-    // A3 : 1580 1119
-    printer->setOutputFileName(outputPath);
-    printer->setCreator(Creator);
-    printer->setDocName(DocName);
+        //text
 
-    if(printTable(printer))
-        return true;
+        if(align.compare("center",Qt::CaseInsensitive) == 0)
+            painter->drawText(rect, Qt::AlignVCenter | Qt::AlignHCenter , value);
+        else if(align.compare("right",Qt::CaseInsensitive) == 0)
+            painter->drawText(rect, Qt::AlignVCenter | Qt::AlignRight , value);
+        else
+            painter->drawText(rect, Qt::AlignVCenter | Qt::AlignLeft , value);
+
+        painter->translate(width, 0);
+    }
     else
-        return false;
-}
-#endif
+    {
+        //img
+        QPixmap img(value);
+        int imgWidth = img.width();
+        int imgHeight = img.height();
+        if(imgWidth > width)
+        {
+            img.scaledToWidth(width - 10);
+            imgWidth = img.width();
+        }
+        if(imgHeight > height)
+        {
+            img.scaledToHeight(height - 10);
+            imgHeight = img.height();
+        }
+        double y = height/2 - imgHeight/2;
+        if(align.compare("center",Qt::CaseInsensitive) == 0)
+        {
+            double x = width/2 - imgWidth/2;
+            painter->drawPixmap(x,y, img ) ;
+        }
+        else if(align.compare("right",Qt::CaseInsensitive) == 0)
+        {
+            double x = width - imgWidth;
+            painter->drawPixmap(x,y, img ) ;
+        }
+        else
+        {
+            painter->drawPixmap(0,y, img ) ;
+        }
 
+        painter->translate(width, 0);
+    }
+
+    return true;
+
+}
+
+double PdfJsonTable::getRowSpanHeight(int row, int column)
+{
+    double height = 0;
+    QJsonArray array;
+    QJsonObject obj;
+    array = jsonTable[row].toArray();
+    obj = array[column].toObject();
+    obj = obj["style"].toObject();
+    int rowSpan = obj["row-span"].toInt();
+    if(rowSpan == -1) return 0;
+    height = obj["height"].toDouble();
+    if(rowSpan == 1) return height;
+    if(rowSpan > 1)
+    {
+        for(int i = row+1; i < jsonTable.count(); i++)
+        {
+            array = jsonTable[i].toArray();
+            obj = array[column].toObject();
+            obj = obj["style"].toObject();
+            rowSpan = obj["row-span"].toInt();
+            if(rowSpan == -1)
+                height += obj["height"].toDouble();
+            else
+                break;
+        }
+
+        return height;
+    }
+    else return 0;
+
+
+    return height;
+}
 
 QString PdfJsonTable::lastError()
 {

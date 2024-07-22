@@ -5,8 +5,9 @@
 // table: [ row-1, row-2 , ... ]                        QJsonArray
 
 /*
-style: { width; height; background-color; color; font-size; font-family; }
-
+style: { width; height; background-color; color; font-size; font-family; bold; align; row-span}
+ auto vertical center align
+ horizontal center by style
 row-item: { type, value, style }                QJsonObject
 row: [ row-item-1 , row-item-2, row-item-3 ]	QJsonArray
 table: [ row-1, row-2 , ... ]                   QJsonArray
@@ -35,7 +36,7 @@ class JsonTable : public QObject
     Q_OBJECT
 public:
     explicit JsonTable(double _default_width, double _default_height, QString _default_background_color, QString _default_color, double _default_font_size, QString _default_font_family, QObject *parent = nullptr );
-    QJsonObject createStyle(double _width=0, double _height=0, QString _backgroundColor=NULL, QString _color=NULL, double _fontSize=0, bool _bold=false, QString _fontFamily=NULL, int rowSpan=0);
+    QJsonObject createStyle(double _width=0, double _height=0, QString _backgroundColor=NULL, QString _color=NULL, double _fontSize=0, bool _bold=false, QString _align="center", QString _fontFamily=NULL, int rowSpan=0);
     QJsonObject createObject(QString _type, QString _value, QJsonObject _style);
     QJsonArray createObjects(QString _type, QStringList  _values, QJsonObject _style);
     QJsonArray addObjectToRow(QJsonArray &row, QJsonObject item);

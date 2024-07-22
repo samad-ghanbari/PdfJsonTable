@@ -49,12 +49,15 @@ public:
     explicit PdfJsonTable(QJsonArray &header, QJsonArray &table, QObject *parent = nullptr);
 
     void preparePage();
-    bool printTable(QPrinter *printer);
+
 #if QT_VERSION > 0x051210
     bool print(QString outputPath, QString Creator, QString DocName, QPageSize::PageSizeId pageSize, qreal pageMarginLeft=4, qreal pageMarginTop=2, qreal pageMarginRight=4, qreal pageMarginBottom=1.5);
 #else
     bool print(QString outputPath, QString Creator, QString DocName, QPrinter::PageSize pageSize, qreal pageMarginLeft=4, qreal pageMarginTop=2, qreal pageMarginRight=4, qreal pageMarginBottom=1.5);
 #endif
+    bool printTable(QPrinter *printer);
+    bool printCell(int row, int column, QJsonObject obj, double fullWidth);
+    double getRowSpanHeight(int row, int column);
     QString lastError();
 
 private:
@@ -68,8 +71,7 @@ private:
     QString error;
 
     //paper size
-    double paperWidth, paperHeight, width, height;
-    QFont font;
+    double paperWidth, paperHeight;
 
     // cell margins
     int topMargin;
