@@ -13,11 +13,15 @@ int main(int argc, char *argv[])
     // 420mm /3 * 3.7 = 518
     QJsonObject style = jt->createStyle(0, 100, "#DDF", "#00d", 24,true, "tahoma");
     QJsonArray row = jt->createObjects("text", {"2024", "Report", "DaNet"},style);
+    style = jt->createStyle(100, 25, "#FFF", "#FFF", 24,true, "tahoma");
+    QJsonObject obj = jt->createObject("img",":/tct.jpg",style);
+    jt->addObjectToRow(row,obj);
     jt->addRowToTable(row);
+    jt->tableAnalyser();
 
 //    QByteArray bytes = jt->toByteArray(jt->table);
 //    QTextStream ts(stdout);
-    //ts << bytes << endl;
+//    ts << bytes << endl;
 
     PdfJsonTable *pdf = new PdfJsonTable(jt->table, jt->table);
     //pdf->print("Primary.pdf", "test", "danet",QPageSize::A3);

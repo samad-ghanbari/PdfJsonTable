@@ -53,8 +53,8 @@ void PdfJsonTable::preparePage()
                 else
                 {
                     //img
-                    QPixmap img("value");
-                    int x,y;
+                    QPixmap img(value);
+                    double x,y;
                     x = painter->viewport().width()/2 - style.value("width").toDouble()/2;
                     y = style.value("height").toDouble();
                     painter->drawPixmap(x, y, img ) ;
@@ -99,8 +99,11 @@ void PdfJsonTable::preparePage()
                 else
                 {
                     //img
-                    QPixmap img("value");
-                    painter->drawPixmap(0,0, img ) ;
+                    QPixmap img(value);
+                    double x, y;
+                    x = style.value("width").toDouble();
+                    y = style.value("height").toDouble();
+                    painter->drawPixmap(x,y, img ) ;
                     painter->translate(width, 0);
                 }
             }

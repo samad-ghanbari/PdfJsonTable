@@ -19,3 +19,8 @@ else: unix:!android: target.path = /opt/$${TARGET}/bin
 HEADERS += \
     lib/jsontable.h \
     lib/pdfjsontable.h
+
+DISTFILES +=
+
+RESOURCES += \
+    Images.qrc
