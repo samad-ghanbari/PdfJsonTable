@@ -47,7 +47,8 @@ class PdfJsonTable : public QObject
     Q_OBJECT
 public:
     explicit PdfJsonTable(QJsonArray &header, QJsonArray &table, QObject *parent = nullptr);
-
+    int getViewPortWidth();
+    int getViewPortHeight();
     void preparePage();
 
 #if QT_VERSION > 0x051210
@@ -56,8 +57,10 @@ public:
     bool print(QString outputPath, QString Creator, QString DocName, QPrinter::PageSize pageSize, qreal pageMarginLeft=4, qreal pageMarginTop=2, qreal pageMarginRight=4, qreal pageMarginBottom=1.5);
 #endif
     bool printTable(QPrinter *printer);
-    bool printCell(int row, int column, QJsonObject obj, double fullWidth);
+    bool printCell(int row, int column, QJsonObject obj);
     double getRowSpanHeight(int row, int column);
+    void updateTableObjectWidth(QJsonArray table);
+    void updateRowObjectWidth(QJsonArray row);
     QString lastError();
 
 private:

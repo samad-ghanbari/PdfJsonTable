@@ -10,6 +10,16 @@ PdfJsonTable::PdfJsonTable(QJsonArray &header, QJsonArray &table, QObject *paren
     error = "";
 }
 
+int PdfJsonTable::getViewPortWidth()
+{
+    return painter->viewport().width();
+}
+
+int PdfJsonTable::getViewPortHeight()
+{
+    return painter->viewport().height();
+}
+
 void PdfJsonTable::preparePage()
 {
     painter->resetTransform();
@@ -32,10 +42,8 @@ void PdfJsonTable::preparePage()
                 headerHeight += obj.value("style").toObject().value("height").toDouble();
                 newRow = false;
             }
-            double fullWidth = paperWidth/(row.count());
-            double stretchWidth =
 
-            if(!printCell(i, j, obj, fullWidth))
+            if(!printCell(i, j, obj))
                 break;
         }
         painter->resetTransform();
@@ -118,7 +126,7 @@ bool PdfJsonTable::printTable(QPrinter *printer)
     return true;
 }
 
-bool PdfJsonTable::printCell(int row, int column, QJsonObject obj, double fullWidth)
+bool PdfJsonTable::printCell(int row, int column, QJsonObject obj)
 {
     // write from left
     QString type = obj.value("type").toString();
@@ -131,6 +139,7 @@ bool PdfJsonTable::printCell(int row, int column, QJsonObject obj, double fullWi
     int fontSize = style.value("font-size").toInt();
     bool bold = style.value("bold").toBool();
     QString align = style.value("align").toString();
+    int border = style.value("border").toInt();
     int rowSpan = style.value("row-span").toInt();
     QString _color = style.value("color").toString();
     QString _backgroundColor = style.value("background-color").toString();
@@ -155,9 +164,7 @@ bool PdfJsonTable::printCell(int row, int column, QJsonObject obj, double fullWi
     font.setBold(bold);
 
     height = (height == 0)? 50 : height;
-    width = (width == 0)? fullWidth : width;
-
-    painter->setPen(color);
+    painter->setPen(QPen(QBrush(color),border));
     painter->setFont(font);
     QRect rect(0,0,width, height );
     painter->fillRect(rect, backgroundColor);
@@ -165,6 +172,8 @@ bool PdfJsonTable::printCell(int row, int column, QJsonObject obj, double fullWi
     if(type.compare("text", Qt::CaseInsensitive) == 0)
     {
         //text
+
+        painter->drawRect(rect);
 
         if(align.compare("center",Qt::CaseInsensitive) == 0)
             painter->drawText(rect, Qt::AlignVCenter | Qt::AlignHCenter , value);
@@ -247,6 +256,7 @@ double PdfJsonTable::getRowSpanHeight(int row, int column)
 
     return height;
 }
+
 
 QString PdfJsonTable::lastError()
 {

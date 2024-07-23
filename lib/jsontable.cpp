@@ -3,10 +3,9 @@
 #include <QByteArray>
 #include <QJsonParseError>
 
-JsonTable::JsonTable(double _default_width, double _default_height, QString _default_background_color, QString _default_color, QString _default_font_family, double _default_font_size, QObject *parent )
+JsonTable::JsonTable(double _default_height, QString _default_background_color, QString _default_color, QString _default_font_family, double _default_font_size, QObject *parent )
     : QObject{parent}
 {
-    this->default_width = _default_width;
     this->default_height = _default_height;
     this->default_background_color = _default_background_color;
     this->default_color = _default_color;
@@ -17,7 +16,7 @@ JsonTable::JsonTable(double _default_width, double _default_height, QString _def
 QJsonObject JsonTable::createStyle(double _width, double _height, QString _color, QString _backgroundColor, QString _fontFamily, double _fontSize, bool _bold, QString _align, int _border, int rowSpan)
 {
     QJsonObject obj;
-    obj["width"] = (_width == 0)? default_width : _width;
+    obj["width"] = (_width < 0)? 0 : _width;
     obj["height"] = (_height == 0)? default_height : _height;
     obj["background-color"] = (_backgroundColor.isNull())? default_background_color : _backgroundColor ;
     obj["color"] = (_color.isNull())? default_color : _color;
@@ -312,6 +311,83 @@ bool JsonTable::updateTableRowSpan()
         res = res && updateArrayRowSpan(r);
     }
     return res;
+}
+
+void JsonTable::updateTableWidth(double viewPortWidth)
+{
+    QJsonArray row;
+    QJsonObject obj;
+    QList<int> zeroIndexes;
+    double width, usedWidth;
+    int rowCount;
+    for(int r=0; r < table.count(); r++)
+    {
+        row = table[r].toArray();
+        zeroIndexes.clear();
+        usedWidth = 0;
+        rowCount = row.count();
+        // one row
+        for(int o=0; o < row.count(); o++)
+        {
+            obj = row[o].toObject();
+            width = obj["style"].toObject()["width"].toDouble();
+            if(width <= 0)
+                zeroIndexes << o;
+            else
+                usedWidth += width;
+        }
+
+        int zeroLen = zeroIndexes.length();
+        if(zeroLen == rowCount)
+        {
+            // width all zero-width object
+            // same width
+            width = viewPortWidth / rowCount;
+            //update row object
+            updateRowWidth(r,width);
+        }
+        else if(zeroLen < rowCount)
+        {
+            double leftWidth = viewPortWidth - usedWidth;
+            double width = leftWidth / zeroLen;
+            updateRowWidth(r,zeroIndexes, width);
+        }
+    }
+}
+
+void JsonTable::updateRowWidth(int row, double width)
+{
+    QJsonArray Row = table[row].toArray();
+    QJsonObject obj;
+    for( int o=0; o < Row.count(); o++)
+    {
+        obj = Row[o].toObject();
+        obj = updateObjectStyle(obj,"width", width);
+        Row.removeAt(o);
+        Row.insert(o, obj);
+    }
+
+    table.removeAt(row);
+    table.insert(row, Row);
+}
+
+void JsonTable::updateRowWidth(int row, QList<int> index, double width)
+{
+    QJsonArray Row = table[row].toArray();
+    QJsonObject obj;
+    for( int o=0; o < Row.count(); o++)
+    {
+        if(index.contains(o))
+        {
+            obj = Row[o].toObject();
+            obj = updateObjectStyle(obj,"width", width);
+            Row.removeAt(o);
+            Row.insert(o, obj);
+        }
+    }
+
+    table.removeAt(row);
+    table.insert(row, Row);
 }
 
 

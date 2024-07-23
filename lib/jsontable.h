@@ -7,9 +7,9 @@
 /*
 style: { width; height; color; background-color; font-family;  font-size; bold; align; border; row-span}
 
-    width:  0   auto equally columns
-    width > 0   specified width
-    width -1    stretch column
+- Row objects width specific width:       nothing be calculated
+- Row objects width all 0 width:          same width objects
+- Row objects width multiple 0 width:     stretch left space width objects
 
 auto vertical center align
 horizontal center by style
@@ -40,7 +40,7 @@ class JsonTable : public QObject
 {
     Q_OBJECT
 public:
-    explicit JsonTable(double _default_width, double _default_height,  QString _default_color, QString _default_background_color, QString _default_font_family, double _default_font_size,  QObject *parent = nullptr );
+    explicit JsonTable(double _default_height,  QString _default_color, QString _default_background_color, QString _default_font_family, double _default_font_size,  QObject *parent = nullptr );
     QJsonObject createStyle(double _width=0, double _height=0, QString _color=NULL, QString _backgroundColor=NULL, QString _fontFamily="tahoma", double _fontSize=0, bool _bold=false, QString _align="center", int _border=1, int rowSpan=0);
     QJsonObject createObject(QString _type, QString _value, QJsonObject _style);
     QJsonArray createObjects(QString _type, QStringList  _values, QJsonObject _style);
@@ -70,17 +70,13 @@ public:
     bool updateArrayRowSpan(int row);
     bool updateTableRowSpan();
 
-
-
-
-
+    void updateTableWidth(double viewPortWidth);
+    void updateRowWidth(int row, double width); // set same width to all objects
+    void updateRowWidth(int row, QList<int> index, double width); // set same streach width to specific objects
 
     QJsonArray table; // [ [ {}, {}, {}, ... ], [], [], [] ]
     QString default_background_color, default_color, default_font_family;
-    double default_width, default_height, default_font_size;
-
-
-signals:
+    double default_height, default_font_size;
 
 };
 
