@@ -15,100 +15,31 @@ void PdfJsonTable::preparePage()
     painter->resetTransform();
 
     QJsonArray row;
-    QJsonObject obj, style;
-    QString type,value;
+    QJsonObject obj;
     int headerHeight = 0;
+    bool newRow;
 
     for(int i=0; i < jsonHeader.count(); i++)
     {
         row = jsonHeader[i].toArray();
+        newRow = true;
 
         for(int j=0; j < row.count(); j++)
         {
-            headerHeight += row[j].toObject().value("style").toObject().value("height").toDouble();
-
-            if(row.count() == 1)
+            obj = row[j].toObject();
+            if(newRow)
             {
-                // write in center
-                obj = row[j].toObject();
-
-                type = obj.value("type").toString();
-                value = obj.value("value").toString();
-                style = obj.value("style").toObject();
-                QRect rect(0,0,painter->viewport().width(), style.value("height").toDouble());
-                QColor color(style.value("color").toString());
-                painter->setPen(color);
-                if(!style.value("background-color").toString().isNull())
-                {
-                    QColor bg(style.value("background-color").toString());
-                    painter->fillRect(rect, bg);
-                }
-
-                if(type.compare("text", Qt::CaseInsensitive) == 0)
-                {
-                    //text
-                    painter->drawText(rect, Qt::AlignVCenter | Qt::AlignHCenter , value);
-                    painter->translate(0, style.value("height").toDouble());
-                }
-                else
-                {
-                    //img
-                    QPixmap img(value);
-                    double x,y;
-                    x = painter->viewport().width()/2 - style.value("width").toDouble()/2;
-                    y = style.value("height").toDouble();
-                    painter->drawPixmap(x, y, img ) ;
-                }
+                headerHeight += obj.value("style").toObject().value("height").toDouble();
+                newRow = false;
             }
-            else
-            {
-                // write from left
-                obj = row[j].toObject();
+            double fullWidth = paperWidth/(row.count());
+            double stretchWidth =
 
-                type = obj.value("type").toString();
-                value = obj.value("value").toString();
-                style = obj.value("style").toObject();
-                width = style.value("width").toDouble();
-                height = style.value("height").toDouble();
-                font.setFamily(style.value("font-family").toString());
-                font.setPixelSize(style.value("font-size").toInt());
-                font.setBold(style.value("bold").toBool());
-
-                if(width == 0)
-                    width = paperWidth/(row.count());
-                height = (height == 0)? 50 : height;
-
-                QRect rect(0,0,width, height );
-                QColor color(style.value("color").toString());
-                painter->setPen(color);
-                painter->setFont(font);
-                QBrush brush(Qt::red);
-                painter->setBrush(brush);
-                if(!style.value("background-color").toString().isNull())
-                {
-                    QColor bg(style.value("background-color").toString());
-                    painter->fillRect(rect, bg);
-                }
-
-                if(type.compare("text", Qt::CaseInsensitive) == 0)
-                {
-                    //text
-                    painter->drawText(rect, Qt::AlignVCenter | Qt::AlignHCenter , value);
-                    painter->translate(width, 0);
-                }
-                else
-                {
-                    //img
-                    QPixmap img(value);
-                    double x, y;
-                    x = style.value("width").toDouble();
-                    y = style.value("height").toDouble();
-                    painter->drawPixmap(x,y, img ) ;
-                    painter->translate(width, 0);
-                }
-            }
+            if(!printCell(i, j, obj, fullWidth))
+                break;
         }
-        painter->translate(0, height);
+        painter->resetTransform();
+        painter->translate(0, headerHeight);
     }
 
     painter->setFont(QFont("tahoma", 10));
@@ -170,8 +101,6 @@ bool PdfJsonTable::printTable(QPrinter *printer)
         error = "painter->begin error.";
         return false;
     }
-
-    //painter->setViewport(0,0,1584,1123);
     paperWidth = painter->viewport().width();
     paperHeight = painter->viewport().height();
     // A3 11.7 in x 16.5 in
@@ -212,14 +141,14 @@ bool PdfJsonTable::printCell(int row, int column, QJsonObject obj, double fullWi
 
     QColor color, backgroundColor;
     if(_color.isEmpty())
-        color.setNamedColor("#000");
+        color = QColor('#000');
     else
-        color.setNamedColor(_color);
+        color = QColor(_color);
 
     if(_backgroundColor.isEmpty())
-        backgroundColor.setNamedColor("transparent");
+        backgroundColor = QColor("transparent");
     else
-        backgroundColor.setNamedColor(_backgroundColor);
+        backgroundColor = QColor(_backgroundColor);
 
     QFont font(fontFamily);
     font.setPixelSize(fontSize);

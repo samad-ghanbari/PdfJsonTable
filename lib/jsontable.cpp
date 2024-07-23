@@ -3,7 +3,7 @@
 #include <QByteArray>
 #include <QJsonParseError>
 
-JsonTable::JsonTable(double _default_width, double _default_height, QString _default_background_color, QString _default_color, double _default_font_size, QString _default_font_family, QObject *parent )
+JsonTable::JsonTable(double _default_width, double _default_height, QString _default_background_color, QString _default_color, QString _default_font_family, double _default_font_size, QObject *parent )
     : QObject{parent}
 {
     this->default_width = _default_width;
@@ -14,7 +14,7 @@ JsonTable::JsonTable(double _default_width, double _default_height, QString _def
     this->default_font_family = _default_font_family;
 }
 
-QJsonObject JsonTable::createStyle(double _width, double _height, QString _backgroundColor, QString _color, double _fontSize, bool _bold, QString _align, QString _fontFamily, int rowSpan)
+QJsonObject JsonTable::createStyle(double _width, double _height, QString _color, QString _backgroundColor, QString _fontFamily, double _fontSize, bool _bold, QString _align, int _border, int rowSpan)
 {
     QJsonObject obj;
     obj["width"] = (_width == 0)? default_width : _width;
@@ -25,6 +25,7 @@ QJsonObject JsonTable::createStyle(double _width, double _height, QString _backg
     obj["font-family"]= (_fontFamily.isNull())? default_font_family : _fontFamily;
     obj["bold"]= _bold;
     obj["align"]= _align;// left center right
+    obj["border"] = _border;
     obj["row-span"] = rowSpan; // 0:default -1:skip n>0:n-span this field will be updated by rowSpanAnalyser
     return obj;
 }
@@ -251,7 +252,7 @@ bool JsonTable::setObjectRowSpan(int row, int index, int rowSpan)
     if(span == rowSpan) return true; else return false;
 }
 
-bool JsonTable::objectAnalyser(int row, int index)
+bool JsonTable::updateObjectRowSpan(int row, int index)
 {
     int span = 1;
     bool res = true;
@@ -292,23 +293,23 @@ bool JsonTable::objectAnalyser(int row, int index)
     return res;
 }
 
-bool JsonTable::rowAnalyser(int row)
+bool JsonTable::updateArrayRowSpan(int row)
 {
     QJsonArray Row = table[row].toArray();
     bool res = true;
     for(int i=0; i<Row.count(); i++)
     {
-        res = res && objectAnalyser(row,i);
+        res = res && updateObjectRowSpan(row,i);
     }
     return res;
 }
 
-bool JsonTable::tableAnalyser()
+bool JsonTable::updateTableRowSpan()
 {
     bool res = true;
     for(int r=0; r<table.count(); r++)
     {
-        res = res && rowAnalyser(r);
+        res = res && updateArrayRowSpan(r);
     }
     return res;
 }
