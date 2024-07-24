@@ -46,17 +46,19 @@ class PdfJsonTable : public QObject
 {
     Q_OBJECT
 public:
-    explicit PdfJsonTable(QJsonArray &header, QJsonArray &table, QObject *parent = nullptr);
+    explicit PdfJsonTable(QString outputPath, QString Creator, QString DocName, QString pageSize="A3", qreal pageMarginLeft=4, qreal pageMarginTop=2, qreal pageMarginRight=4, qreal pageMarginBottom=1.5, QObject *parent = nullptr);
+    void setHeader(QJsonArray *header);
+    void setTable(QJsonArray *table);
+    //#if QT_VERSION > 0x051210
+        bool setPage();
+//    #else
+//        void setPaper(QPrinter::PageSize pageSize, qreal pageMarginLeft=4, qreal pageMarginTop=2, qreal pageMarginRight=4, qreal pageMarginBottom=1.5);
+//    #endif
     int getViewPortWidth();
     int getViewPortHeight();
     void preparePage();
 
-#if QT_VERSION > 0x051210
-    bool print(QString outputPath, QString Creator, QString DocName, QPageSize::PageSizeId pageSize, qreal pageMarginLeft=4, qreal pageMarginTop=2, qreal pageMarginRight=4, qreal pageMarginBottom=1.5);
-#else
-    bool print(QString outputPath, QString Creator, QString DocName, QPrinter::PageSize pageSize, qreal pageMarginLeft=4, qreal pageMarginTop=2, qreal pageMarginRight=4, qreal pageMarginBottom=1.5);
-#endif
-    bool printTable(QPrinter *printer);
+    bool print();
     bool printCell(int row, int column, QJsonObject obj);
     double getRowSpanHeight(int row, int column);
     void updateTableObjectWidth(QJsonArray table);
@@ -64,8 +66,9 @@ public:
     QString lastError();
 
 private:
-    QJsonArray &jsonHeader, &jsonTable;
+    QJsonArray jsonHeader, jsonTable;
     QPainter *painter;
+    QPrinter *printer;
     QPen pen; // for table borders
 
     bool newPageFlag;
