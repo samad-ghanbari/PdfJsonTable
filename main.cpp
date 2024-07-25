@@ -36,19 +36,51 @@ int main(int argc, char *argv[])
 
 
     //table
+    JsonTable *table = new JsonTable(50, "#000", "#ddd", "tahoma",16);
+    style = table->createStyle(0, 60, "#333", "#fbd","tahoma", 20, true, "center",2);
+    row = table->createObjects("text", {"Exchange", "saloon", "Device", "Interface"},style);
+    table->addRowToTable(row);
+
+    style = table->createStyle(0, 40, "#444", "#fef","tahoma", 16, false, "left",1);
+    row = table->createObjects("text", {"D\nS\nL\nA\nM", "Switch", "CX600X16", "10G 2/0/0"},style);
+    table->addRowToTable(row);
+
+    row = table->createObjects("text", {"D\nS\nL\nA\nM", "Data", "CX600X16", "10G 2/0/0"},style);
+    table->addRowToTable(row);
+
+    //table->addRowToTable(); // empty row for new page
+
+    //new page
+//    style = table->createStyle(0, 60, "#333", "#fbd","tahoma", 20, true, "center",2);
+//    row = table->createObjects("text", {"Exchange", "saloon", "Device", "Interface"},style);
+//    table->addRowToTable(row);
+
+//    style = table->createStyle(0, 40, "#444", "#fef","tahoma", 16, false, "left",1);
+    row = table->createObjects("text", {"D\nS\nL\nA\nM", "PCM", "CX600X8", "10G 3/0/0"},style);
+    table->addRowToTable(row);
+
+    row = table->createObjects("text", {"D\nS\nL\nA\nM", "Switch", "CX600X8", "1G 10/0/0"},style);
+    table->addRowToTable(row);
+
+    row = table->createObjects("text", {"D\nS\nL\nA\nM", "Switch", "CX600X16", "10G 11/0/0"},style);
+    table->addRowToTable(row);
+
+    table->updateTableRowHeight();
+    //table->updateTableRowSpan(2);
+    table->updateTableRowSpan(true);
 
 
+    PdfJsonTable *pdf = new PdfJsonTable("Primary.pdf", "test", "danet","A2","portrait",50,80,30,40);
+    int width = pdf->getViewPortWidth();
+    header->updateTableWidth(width);
+    table->updateTableWidth(width);
 
-//    QByteArray bytes = header->toByteArray(jt->table);
+//    QByteArray bytes = table->toByteArray(table->table);
 //    QTextStream ts(stdout);
 //    ts << bytes << endl;
 
-    PdfJsonTable *pdf = new PdfJsonTable("Primary.pdf", "test", "danet");
-    int width = pdf->getViewPortWidth();
-    header->updateTableWidth(width);
-
     pdf->setHeader(&header->table);
-    pdf->setTable(&header->table);
+    pdf->setTable(&table->table);
 
     pdf->print();
 

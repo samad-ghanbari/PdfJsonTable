@@ -46,7 +46,7 @@ class PdfJsonTable : public QObject
 {
     Q_OBJECT
 public:
-    explicit PdfJsonTable(QString outputPath, QString Creator, QString DocName, QString pageSize="A3", qreal pageMarginLeft=4, qreal pageMarginTop=2, qreal pageMarginRight=4, qreal pageMarginBottom=1.5, QObject *parent = nullptr);
+    explicit PdfJsonTable(QString outputPath, QString Creator, QString DocName, QString pageSize="A3", QString orientation="landscape", qreal pageMarginLeft=4, qreal pageMarginTop=2, qreal pageMarginRight=4, qreal pageMarginBottom=1.5, QObject *parent = nullptr);
     void setHeader(QJsonArray *header);
     void setTable(QJsonArray *table);
     //#if QT_VERSION > 0x051210

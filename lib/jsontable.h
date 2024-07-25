@@ -48,6 +48,7 @@ public:
     QJsonArray addArrayToRow(QJsonArray &row, QJsonArray array);
     void addRowToTable(QJsonArray &row);
     void addRowToTable(); //add empty Row
+    bool isEmptyArray(int row);
     QJsonArray emptyJsonArray(QJsonArray &array);
     QByteArray toByteArray();
     QByteArray toByteArray(QJsonObject obj);
@@ -66,10 +67,10 @@ public:
     QJsonObject getStyle(int row, int index);
     int getObjectRowSpan(int row, int index);
     bool setObjectRowSpan(int row, int index, int rowSpan);
-    bool updateObjectRowSpan(int row, int index);
-    bool updateArrayRowSpan(int row);
-    bool updateTableRowSpan();
-
+    bool updateObjectRowSpan(int row, int index, bool SPAN=true);
+    bool updateArrayRowSpan(int row, bool SPAN=true);
+    bool updateTableRowSpan(bool SPAN = true); // when it is true it will span row everywhere; when it is false no row-spaning perfoms
+    bool updateTableRowSpan(int ColumnIndex); // perfom row-spaning on specified column
     void updateTableWidth(double viewPortWidth);
     void updateRowWidth(int row, double width); // set same width to all objects
     void updateRowWidth(int row, QList<int> index, double width); // set same streach width to specific objects

@@ -3,7 +3,7 @@
 #include <QPrinter>
 #include <QDebug>
 
-PdfJsonTable::PdfJsonTable(QString outputPath, QString Creator, QString DocName, QString _pageSize, qreal pageMarginLeft, qreal pageMarginTop, qreal pageMarginRight, qreal pageMarginBottom, QObject *parent)
+PdfJsonTable::PdfJsonTable(QString outputPath, QString Creator, QString DocName, QString _pageSize, QString orientation, qreal pageMarginLeft, qreal pageMarginTop, qreal pageMarginRight, qreal pageMarginBottom, QObject *parent)
     : QObject{parent}, painter(new QPainter()), printer(new QPrinter(QPrinter::ScreenResolution))
 {
     pageNumber = 1;
@@ -26,8 +26,9 @@ PdfJsonTable::PdfJsonTable(QString outputPath, QString Creator, QString DocName,
         {"A0", QPageSize::A0}, {"A1", QPageSize::A1}, {"A2", QPageSize::A2}, {"A3", QPageSize::A3}, {"A4", QPageSize::A4}, {"A5", QPageSize::A5}, {"A6", QPageSize::A6}, {"A7", QPageSize::A7}, {"A8", QPageSize::A8}, {"A9", QPageSize::A9}, {"A10", QPageSize::A10},
         {"B0", QPageSize::B0}, {"B1", QPageSize::B1}, {"B2", QPageSize::B2}, {"B3", QPageSize::B3}, {"B4", QPageSize::B4}, {"B5", QPageSize::B5}, {"B6", QPageSize::B6}, {"B7", QPageSize::B7}, {"B8", QPageSize::B8}, {"B9", QPageSize::B9}, {"B10", QPageSize::B10}
     };
+    QMap<QString, QPageLayout::Orientation> ORIENTATION ={ {"landscape", QPageLayout::Landscape}, {"portrait", QPageLayout::Portrait} };
 
-    printer->setPageOrientation(QPageLayout::Landscape);
+    printer->setPageOrientation(ORIENTATION.value(orientation));
 
     printer->setPageSize(PAGE_SIZE_ID.value(_pageSize));
 
@@ -39,8 +40,10 @@ PdfJsonTable::PdfJsonTable(QString outputPath, QString Creator, QString DocName,
         {"A0", QPrinter::A0}, {"A1", QPrinter::A1}, {"A2", QPrinter::A2}, {"A3", QPrinter::A3}, {"A4", QPrinter::A4}, {"A5", QPrinter::A5}, {"A6", QPrinter::A6}, {"A7", QPrinter::A7}, {"A8", QPrinter::A8}, {"A9", QPrinter::A9}, {"A10", QPrinter::A10},
         {"B0", QPrinter::B0}, {"B1", QPrinter::B1}, {"B2", QPrinter::B2}, {"B3", QPrinter::B3}, {"B4", QPrinter::B4}, {"B5", QPrinter::B5}, {"B6", QPrinter::B6}, {"B7", QPrinter::B7}, {"B8", QPrinter::B8}, {"B9", QPrinter::B9}, {"B10", QPrinter::B10}
     };
+    QMap<QString, QPrinter::Orientation> ORIENTATION ={ {"landscape", QPrinter::Landscape}, {"portrait", QPrinter::Portrait} };
+
     printer->setOutputFormat(QPrinter::PdfFormat);
-    printer->setOrientation(QPrinter::Landscape);
+    printer->setOrientation(ORIENTATION.value(orientation));
     printer->setPaperSize(PAGE_SIZE_ID.value(_pageSize));
     printer->setPageMargins(pageMarginLeft/96,pageMarginTop/96,pageMarginRight/96, pageMarginBottom/96, QPrinter::Inch );
     // A3 : 1580 1119
@@ -123,6 +126,36 @@ bool PdfJsonTable::print()
 {
     preparePage();
 
+    QJsonArray row;
+    QJsonObject obj;
+
+
+    for(int i=0; i < jsonTable.count(); i++ )
+    {
+        painter->save();
+        row = jsonTable[i].toArray();
+        //check empty array
+        if(row.count() == 0)
+        {
+            painter->restore();
+            printer->newPage();
+            preparePage();
+            continue;
+        }
+        int rowHeight = 50;
+        for(int j=0; j < row.count(); j++)
+        {
+            obj = row[j].toObject();
+            if(j == 0)
+                rowHeight = obj["style"].toObject()["height"].toInt();
+
+            if(!printCell(i, j, obj))
+                break;
+        }
+        painter->restore();
+        painter->translate(0, rowHeight);
+    }
+
     painter->end();
 
     return true;
@@ -146,7 +179,7 @@ bool PdfJsonTable::printCell(int row, int column, QJsonObject obj)
     QString _color = style.value("color").toString();
     QString _backgroundColor = style.value("background-color").toString();
 
-    if(rowSpan == -1) return true;
+    if(rowSpan == -1){painter->translate(width, 0); return true;}
     if(rowSpan > 1)
           height = getRowSpanHeight(row, column);
 

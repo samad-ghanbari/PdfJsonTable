@@ -82,6 +82,15 @@ void JsonTable::addRowToTable()
     table.append(row);
 }
 
+bool JsonTable::isEmptyArray(int row)
+{
+    QJsonArray Row = table[row].toArray();
+    if(Row.count()==0)
+        return true;
+    else
+        return false;
+}
+
 QJsonArray JsonTable::emptyJsonArray(QJsonArray &array)
 {
     while(array.count() > 0)
@@ -251,7 +260,7 @@ bool JsonTable::setObjectRowSpan(int row, int index, int rowSpan)
     if(span == rowSpan) return true; else return false;
 }
 
-bool JsonTable::updateObjectRowSpan(int row, int index)
+bool JsonTable::updateObjectRowSpan(int row, int index, bool SPAN)
 {
     int span = 1;
     bool res = true;
@@ -259,9 +268,12 @@ bool JsonTable::updateObjectRowSpan(int row, int index)
     int baseSpan = this->getObjectRowSpan(row, index);
     if(baseSpan != 0) return res;
 
-    if(row == (table.count()-1)) // last row
+    if(isEmptyArray(row)) return true;
+
+    if( (row == (table.count()-1)) || !SPAN )
     {
         res = res && setObjectRowSpan(row, index, span);
+        return res;
     }
 
     QString tempValue;
@@ -292,23 +304,33 @@ bool JsonTable::updateObjectRowSpan(int row, int index)
     return res;
 }
 
-bool JsonTable::updateArrayRowSpan(int row)
+bool JsonTable::updateArrayRowSpan(int row, bool SPAN)
 {
     QJsonArray Row = table[row].toArray();
     bool res = true;
     for(int i=0; i<Row.count(); i++)
     {
-        res = res && updateObjectRowSpan(row,i);
+        res = res && updateObjectRowSpan(row,i, SPAN);
     }
     return res;
 }
 
-bool JsonTable::updateTableRowSpan()
+bool JsonTable::updateTableRowSpan(bool SPAN)
 {
     bool res = true;
     for(int r=0; r<table.count(); r++)
     {
-        res = res && updateArrayRowSpan(r);
+        res = res && updateArrayRowSpan(r, SPAN);
+    }
+    return res;
+}
+
+bool JsonTable::updateTableRowSpan(int ColumnIndex)
+{
+    bool res = true;
+    for(int r=0; r<table.count(); r++)
+    {
+        res = res && updateObjectRowSpan(r,ColumnIndex);
     }
     return res;
 }
