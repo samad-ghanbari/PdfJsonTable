@@ -70,25 +70,10 @@ private:
     QPainter *painter;
     QPrinter *printer;
     QPen pen; // for table borders
-
-    bool newPageFlag;
     int pageNumber;
-
     QString error;
-
     //paper size
     double paperWidth, paperHeight;
-
-    // cell margins
-    int topMargin;
-    int bottomMargin;
-    int leftMargin;
-    int rightMargin;
-    // margins for table
-    int topBlank;
-    int bottomBlank;
-    int leftBlank;
-    int rightBlank;
 };
 
 #endif // PDFJSONTABLE_H

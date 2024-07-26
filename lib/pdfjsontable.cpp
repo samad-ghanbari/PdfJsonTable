@@ -128,6 +128,7 @@ bool PdfJsonTable::print()
 
     QJsonArray row;
     QJsonObject obj;
+    double currentHeight = 0;
 
 
     for(int i=0; i < jsonTable.count(); i++ )
@@ -143,6 +144,10 @@ bool PdfJsonTable::print()
             continue;
         }
         int rowHeight = 50;
+        // check row exceeding page height
+
+
+
         for(int j=0; j < row.count(); j++)
         {
             obj = row[j].toObject();
