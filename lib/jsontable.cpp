@@ -13,9 +13,10 @@ JsonTable::JsonTable(double _default_height, QString _default_background_color, 
     this->default_font_family = _default_font_family;
 }
 
-QJsonObject JsonTable::createStyle(double _width, double _height, QString _color, QString _backgroundColor, QString _fontFamily, double _fontSize, bool _bold, QString _align, int _border, int rowSpan)
+QJsonObject JsonTable::createStyle(QString _name, double _width, double _height, QString _color, QString _backgroundColor, QString _fontFamily, double _fontSize, bool _bold, QString _align, int _border, int _rowSpan)
 {
     QJsonObject obj;
+    obj["name"] = _name;
     obj["width"] = (_width < 0)? 0 : _width;
     obj["height"] = (_height == 0)? default_height : _height;
     obj["background-color"] = (_backgroundColor.isNull())? default_background_color : _backgroundColor ;
@@ -25,7 +26,7 @@ QJsonObject JsonTable::createStyle(double _width, double _height, QString _color
     obj["bold"]= _bold;
     obj["align"]= _align;// left center right
     obj["border"] = _border;
-    obj["row-span"] = rowSpan; // 0:default -1:skip n>0:n-span this field will be updated by rowSpanAnalyser
+    obj["row-span"] = _rowSpan; // 0:default -1:skip n>0:n-span this field will be updated by rowSpanAnalyser
     return obj;
 }
 
