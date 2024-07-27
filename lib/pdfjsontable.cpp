@@ -85,6 +85,7 @@ void PdfJsonTable::preparePage()
 {
     painter->resetTransform();
 
+
     QJsonArray row;
     QJsonObject obj;
     int headerHeight = 0;
@@ -118,8 +119,11 @@ void PdfJsonTable::preparePage()
     pageNumber += 1;
 
     painter->translate(0, headerHeight);
+
     painter->drawLine(0, 10, paperWidth , 10);
     painter->translate(0, 20);
+
+    currentHeight = headerHeight + 30;
 }
 
 bool PdfJsonTable::print()
@@ -128,8 +132,6 @@ bool PdfJsonTable::print()
 
     QJsonArray row;
     QJsonObject obj;
-    double currentHeight = 0;
-
 
     for(int i=0; i < jsonTable.count(); i++ )
     {
@@ -144,15 +146,22 @@ bool PdfJsonTable::print()
             continue;
         }
         int rowHeight = 50;
-        // check row exceeding page height
-
-
 
         for(int j=0; j < row.count(); j++)
         {
             obj = row[j].toObject();
             if(j == 0)
+            {
                 rowHeight = obj["style"].toObject()["height"].toInt();
+                if( (currentHeight + rowHeight) > (paperHeight - 30) )
+                {
+                    painter->restore();
+                    printer->newPage();
+                    preparePage();
+                    painter->save();
+                }
+                currentHeight += rowHeight;
+            }
 
             if(!printCell(i, j, obj))
                 break;
@@ -216,11 +225,11 @@ bool PdfJsonTable::printCell(int row, int column, QJsonObject obj)
         painter->drawRect(rect);
 
         if(align.compare("center",Qt::CaseInsensitive) == 0)
-            painter->drawText(rect, Qt::AlignVCenter | Qt::AlignHCenter , value);
+            painter->drawText(rect, Qt::AlignVCenter | Qt::AlignHCenter |  Qt::TextWordWrap , value);
         else if(align.compare("right",Qt::CaseInsensitive) == 0)
-            painter->drawText(rect, Qt::AlignVCenter | Qt::AlignRight , value);
+            painter->drawText(rect, Qt::AlignVCenter | Qt::AlignRight | Qt::TextWordWrap, value);
         else
-            painter->drawText(rect, Qt::AlignVCenter | Qt::AlignLeft , value);
+            painter->drawText(rect, Qt::AlignVCenter | Qt::AlignLeft | Qt::TextWordWrap, value);
 
         painter->translate(width, 0);
     }

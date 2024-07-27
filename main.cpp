@@ -42,10 +42,10 @@ int main(int argc, char *argv[])
     table->addRowToTable(row);
 
     style = table->createStyle("device",0, 40, "#444", "#fef","tahoma", 16, false, "left",1);
-    row = table->createObjects("text", {"D\nS\nL\nA\nM", "Switch", "CX600X16", "10G 2/0/0"},style);
+    row = table->createObjects("text", {"DSLAM-1", "Switch", "CX600X16", "10G 2/0/0"},style);
     table->addRowToTable(row);
 
-    row = table->createObjects("text", {"D\nS\nL\nA\nM", "Data", "CX600X16", "10G 2/0/0"},style);
+    row = table->createObjects("text", {"DSLAM-2", "Data", "CX600X16", "10G 2/0/0"},style);
     table->addRowToTable(row);
 
     //table->addRowToTable(); // empty row for new page
@@ -56,21 +56,132 @@ int main(int argc, char *argv[])
 //    table->addRowToTable(row);
 
 //    style = table->createStyle(0, 40, "#444", "#fef","tahoma", 16, false, "left",1);
-    row = table->createObjects("text", {"D\nS\nL\nA\nM", "PCM", "CX600X8", "10G 3/0/0"},style);
+    row = table->createObjects("text", {"DSLAM-3", "PCM", "CX600X8", "10G 3/0/0"},style);
     table->addRowToTable(row);
 
-    row = table->createObjects("text", {"D\nS\nL\nA\nM", "Switch", "CX600X8", "1G 10/0/0"},style);
+    row = table->createObjects("text", {"DSLAM-4", "Switch", "CX600X8", "1G 10/0/0"},style);
     table->addRowToTable(row);
 
-    row = table->createObjects("text", {"D\nS\nL\nA\nM", "Switch", "CX600X16", "10G 11/0/0"},style);
+    row = table->createObjects("text", {"DSLAM-5", "Switch", "CX600X16", "10G 11/0/0"},style);
+    table->addRowToTable(row);
+
+
+
+    row = table->createObjects("text", {"DSLAM-6", "PCM", "CX600X8", "10G 3/0/0"},style);
+    table->addRowToTable(row);
+
+    row = table->createObjects("text", {"DSLAM-7", "Switch", "CX600X8", "1G 10/0/0"},style);
+    table->addRowToTable(row);
+
+    row = table->createObjects("text", {"DSLAM-8", "Switch", "CX600X16", "10G 11/0/0"},style);
+    table->addRowToTable(row);
+
+
+
+    row = table->createObjects("text", {"DSLAM-9", "PCM", "CX600X8", "10G 3/0/0"},style);
+    table->addRowToTable(row);
+
+    row = table->createObjects("text", {"DSLAM-10", "Switch", "CX600X8", "1G 10/0/0"},style);
+    table->addRowToTable(row);
+
+    row = table->createObjects("text", {"DSLAM-11", "Switch", "CX600X16", "10G 11/0/0"},style);
+    table->addRowToTable(row);
+
+
+
+    row = table->createObjects("text", {"DSLAM-12", "PCM", "CX600X8", "10G 3/0/0"},style);
+    table->addRowToTable(row);
+
+    row = table->createObjects("text", {"DSLAM-13", "Switch", "CX600X8", "1G 10/0/0"},style);
+    table->addRowToTable(row);
+
+    row = table->createObjects("text", {"DSLAM-14", "Switch", "CX600X16", "10G 11/0/0"},style);
+    table->addRowToTable(row);
+
+
+
+    row = table->createObjects("text", {"DSLAM-15", "PCM", "CX600X8", "10G 3/0/0"},style);
+    table->addRowToTable(row);
+
+    row = table->createObjects("text", {"DSLAM-16", "Switch", "CX600X8", "1G 10/0/0"},style);
+    table->addRowToTable(row);
+
+    row = table->createObjects("text", {"DSLAM-17", "Switch", "CX600X16", "10G 11/0/0"},style);
+    table->addRowToTable(row);
+
+
+
+    row = table->createObjects("text", {"DSLAM-18", "PCM", "CX600X8", "10G 3/0/0"},style);
+    table->addRowToTable(row);
+
+    row = table->createObjects("text", {"DSLAM-19", "Switch", "CX600X8", "1G 10/0/0"},style);
+    table->addRowToTable(row);
+
+    row = table->createObjects("text", {"DSLAM-20", "Switch", "CX600X16", "10G 11/0/0"},style);
+    table->addRowToTable(row);
+
+
+
+    row = table->createObjects("text", {"DSLAM-21", "PCM", "CX600X8", "10G 3/0/0"},style);
+    table->addRowToTable(row);
+
+    row = table->createObjects("text", {"DSLAM-22", "Switch", "CX600X8", "1G 10/0/0"},style);
+    table->addRowToTable(row);
+
+    row = table->createObjects("text", {"DSLAM-23", "Switch", "CX600X16", "10G 11/0/0"},style);
+    table->addRowToTable(row);
+
+    row = table->createObjects("text", {"DSLAM-24", "PCM", "CX600X8", "10G 3/0/0"},style);
+    table->addRowToTable(row);
+
+    row = table->createObjects("text", {"DSLAM-25", "Switch", "CX600X8", "1G 10/0/0"},style);
+    table->addRowToTable(row);
+
+    row = table->createObjects("text", {"DSLAM-26", "Switch", "CX600X16", "10G 11/0/0"},style);
+    table->addRowToTable(row);
+
+    row = table->createObjects("text", {"DSLAM-27", "PCM", "CX600X8", "10G 3/0/0"},style);
+    table->addRowToTable(row);
+
+    row = table->createObjects("text", {"DSLAM-28", "Switch", "CX600X8", "1G 10/0/0"},style);
+    table->addRowToTable(row);
+
+    row = table->createObjects("text", {"DSLAM-29", "Switch", "CX600X16", "10G 11/0/0"},style);
+    table->addRowToTable(row);
+
+    row = table->createObjects("text", {"DSLAM-30", "PCM", "CX600X8", "10G 3/0/0"},style);
+    table->addRowToTable(row);
+
+    row = table->createObjects("text", {"DSLAM-31", "Switch", "CX600X8", "1G 10/0/0"},style);
+    table->addRowToTable(row);
+
+    row = table->createObjects("text", {"DSLAM-32", "Switch", "CX600X16", "10G 11/0/0"},style);
+    table->addRowToTable(row);
+
+    row = table->createObjects("text", {"DSLAM-33", "PCM", "CX600X8", "10G 3/0/0"},style);
+    table->addRowToTable(row);
+
+    row = table->createObjects("text", {"DSLAM-34", "Switch", "CX600X8", "1G 10/0/0"},style);
+    table->addRowToTable(row);
+
+    row = table->createObjects("text", {"DSLAM-35", "Switch", "CX600X16", "10G 11/0/0"},style);
+    table->addRowToTable(row);
+
+    row = table->createObjects("text", {"DSLAM-36", "PCM", "CX600X8", "10G 3/0/0"},style);
+    table->addRowToTable(row);
+
+    row = table->createObjects("text", {"DSLAM-37", "Switch", "CX600X8", "1G 10/0/0"},style);
+    table->addRowToTable(row);
+
+    row = table->createObjects("text", {"DSLAM-38", "Switch", "CX600X16", "10G 11/0/0"},style);
     table->addRowToTable(row);
 
     table->updateTableRowHeight();
-    //table->updateTableRowSpan(2);
-    table->updateTableRowSpan(true);
+    table->updateTableRowSpan(2);
+    table->updateTableRowSpan(false);
 
 
-    PdfJsonTable *pdf = new PdfJsonTable("Primary.pdf", "test", "danet","A2","portrait",50,80,30,40);
+    PdfJsonTable *pdf = new PdfJsonTable("Primary.pdf", "test", "danet","A3","landscape",50,80,30,40);
     int width = pdf->getViewPortWidth();
     header->updateTableWidth(width);
     table->updateTableWidth(width);

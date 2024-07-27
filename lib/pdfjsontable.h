@@ -73,7 +73,7 @@ private:
     int pageNumber;
     QString error;
     //paper size
-    double paperWidth, paperHeight;
+    double paperWidth, paperHeight, currentHeight;
 };
 
 #endif // PDFJSONTABLE_H
