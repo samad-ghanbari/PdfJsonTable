@@ -60,6 +60,7 @@ public:
     QJsonObject updateObjectStyle(QJsonObject _object, QString _key, double _val);
     QJsonArray updateRowStyle(QJsonArray row, QString key, double val);
     void updateTableRowHeight(); // set maximum cell height to all row-objects height
+    double getHeight(int startRow, int endRow);
 
     QJsonObject getRowObject(int row, int index);
     QString getType(int row, int index);

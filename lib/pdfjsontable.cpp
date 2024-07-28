@@ -6,6 +6,7 @@
 PdfJsonTable::PdfJsonTable(QString outputPath, QString Creator, QString DocName, QString _pageSize, QString orientation, qreal pageMarginLeft, qreal pageMarginTop, qreal pageMarginRight, qreal pageMarginBottom, QObject *parent)
     : QObject{parent}, painter(new QPainter()), printer(new QPrinter(QPrinter::ScreenResolution))
 {
+
     pageNumber = 1;
     error = "";
     // screanResolution dpi 96
@@ -61,14 +62,19 @@ PdfJsonTable::PdfJsonTable(QString outputPath, QString Creator, QString DocName,
     }
 }
 
-void PdfJsonTable::setHeader(QJsonArray *header)
+void PdfJsonTable::setPageTitle(QJsonArray *_titleArray)
 {
-    jsonHeader = *header;
+    pageTitleArray = *_titleArray;
 }
 
-void PdfJsonTable::setTable(QJsonArray *table)
+void PdfJsonTable::setTable(QJsonArray *_table)
 {
-    jsonTable = *table;
+    tableArray = *_table;
+}
+
+void PdfJsonTable::setTableHeader(QJsonArray *_tableHeader)
+{
+    tableHeader = *_tableHeader;
 }
 
 int PdfJsonTable::getViewPortWidth()
@@ -91,9 +97,9 @@ void PdfJsonTable::preparePage()
     int headerHeight = 0;
     bool newRow;
 
-    for(int i=0; i < jsonHeader.count(); i++)
+    for(int i=0; i < pageTitleArray.count(); i++)
     {
-        row = jsonHeader[i].toArray();
+        row = pageTitleArray[i].toArray();
         newRow = true;
 
         for(int j=0; j < row.count(); j++)
@@ -115,7 +121,8 @@ void PdfJsonTable::preparePage()
     painter->resetTransform();
     painter->setFont(QFont("tahoma", 10));
     painter->setPen(QPen(QColor(0, 0, 0), 2));
-    painter->drawText(QRect(0, paperHeight-20, paperWidth, paperHeight),Qt::AlignHCenter | Qt::AlignTop, QString("Page %1").arg(pageNumber));
+    QRect rec(0, paperHeight-20, paperWidth, paperHeight);
+    painter->drawText(rec,Qt::AlignHCenter | Qt::AlignTop, QString("Page %1").arg(pageNumber));
     pageNumber += 1;
 
     painter->translate(0, headerHeight);
@@ -124,6 +131,24 @@ void PdfJsonTable::preparePage()
     painter->translate(0, 20);
 
     currentHeight = headerHeight + 30;
+
+    // print repeated header
+    double rowHeight;
+    for(int i =0; i < tableHeader.count(); i++)
+    {
+        painter->save();
+        row = tableHeader[i].toArray();
+        rowHeight = getHeight(row);
+        for(int j=0; j < row.count(); j++)
+        {
+            obj = row[j].toObject();
+            if(!printCell(i, j, obj))
+                break;
+        }
+        currentHeight += rowHeight;
+        painter->restore();
+        painter->translate(0, rowHeight);
+    }
 }
 
 bool PdfJsonTable::print()
@@ -132,11 +157,13 @@ bool PdfJsonTable::print()
 
     QJsonArray row;
     QJsonObject obj;
+    int rowHeight, rowSpan, height;
 
-    for(int i=0; i < jsonTable.count(); i++ )
+    // print content
+    for(int i=0; i < tableArray.count(); i++ )
     {
         painter->save();
-        row = jsonTable[i].toArray();
+        row = tableArray[i].toArray();
         //check empty array
         if(row.count() == 0)
         {
@@ -145,27 +172,37 @@ bool PdfJsonTable::print()
             preparePage();
             continue;
         }
-        int rowHeight = 50;
+
+        rowHeight = getHeight(i);
+        if( (currentHeight + rowHeight) > (paperHeight - 30)  )
+        {
+            painter->restore();
+            printer->newPage();
+            preparePage();
+            painter->save();
+        }
 
         for(int j=0; j < row.count(); j++)
         {
             obj = row[j].toObject();
-            if(j == 0)
+            // check if object fits in current page or need to create new page
+            rowSpan = obj["style"].toObject()["row-span"].toInt();
+            if(rowSpan > 1)
             {
-                rowHeight = obj["style"].toObject()["height"].toInt();
-                if( (currentHeight + rowHeight) > (paperHeight - 30) )
+                height = getRowSpanHeight(i,j);
+
+                if( (currentHeight + height) > (paperHeight - 30)  )
                 {
-                    painter->restore();
-                    printer->newPage();
-                    preparePage();
-                    painter->save();
+                    //column should be respanned to fit the page
+                    respanRow(i, j);
                 }
-                currentHeight += rowHeight;
             }
+
 
             if(!printCell(i, j, obj))
                 break;
         }
+        currentHeight += rowHeight;
         painter->restore();
         painter->translate(0, rowHeight);
     }
@@ -173,6 +210,86 @@ bool PdfJsonTable::print()
     painter->end();
 
     return true;
+}
+
+double PdfJsonTable::getHeight(int startRow, int endRow)
+{
+    double height=0;
+    int lastRow = tableArray.count() -1 ;
+    if(endRow > lastRow) endRow = lastRow;
+
+    for(int i=startRow;  i <= endRow; i++)
+        height += getHeight(i);
+
+    return height;
+}
+
+double PdfJsonTable::getHeight(int row)
+{
+    //get row height
+    // find the minimum height of objects as row-height
+    //normally row with row-span = 1
+    // spanned row has big height
+    QJsonArray Row = tableArray[row].toArray();
+    QJsonObject obj;
+    double height, temp;
+    height = 0;
+
+    if(Row.count() == 0) return 0;
+
+
+    for(int i=0; i < Row.count(); i++)
+    {
+        obj = Row[i].toObject();
+        if(i == 0)
+            height = obj["style"].toObject()["height"].toDouble();
+
+        temp = obj["style"].toObject()["height"].toDouble();
+
+        if(height > temp)
+            height = temp;
+    }
+
+    return height;
+}
+
+double PdfJsonTable::getHeight(QJsonArray Row)
+{
+    QJsonObject obj;
+    double height, temp;
+    height = 0;
+
+    if(Row.count() == 0) return 0;
+
+
+    for(int i=0; i < Row.count(); i++)
+    {
+        obj = Row[i].toObject();
+        if(i == 0)
+            height = obj["style"].toObject()["height"].toDouble();
+
+        temp = obj["style"].toObject()["height"].toDouble();
+
+        if(height > temp)
+            height = temp;
+    }
+
+    return height;
+}
+
+QJsonObject PdfJsonTable::updateObjectStyle(QJsonObject _object, QString _key, double _val)
+{
+    QJsonObject style;
+    if(_object.contains("style"))
+    {
+        style = _object["style"].toObject();
+        if( style.contains(_key) )
+            style[_key] = _val;
+
+        _object["style"] = style;
+    }
+
+    return _object;
 }
 
 bool PdfJsonTable::printCell(int row, int column, QJsonObject obj)
@@ -272,12 +389,67 @@ bool PdfJsonTable::printCell(int row, int column, QJsonObject obj)
 
 }
 
+void PdfJsonTable::respanRow(int row, int column)
+{
+    QJsonArray Row;
+    QJsonObject Obj;
+    int rowSpan, lastRow, middleRow, newRowSpan;;
+    double height, newHeight;
+
+    Row = tableArray[row].toArray();
+    Obj = Row[column].toObject();
+    rowSpan = Obj["style"].toObject()["row-span"].toInt();
+    if(rowSpan <= 1) return;
+    height = getRowSpanHeight(row, column);
+    if( (currentHeight + height) <= (paperHeight - 30) )
+        return;
+    lastRow = row + rowSpan - 1;
+    middleRow = lastRow;
+    while(middleRow > row)
+    {
+        newHeight = getHeight(row, middleRow);
+        if( (currentHeight + newHeight) <= (paperHeight - 30) )
+            break;
+        middleRow--;
+    }
+
+    // update object width new row-span
+    // row column
+    QJsonObject style = Obj["style"].toObject();
+    newRowSpan = middleRow - row + 1;
+    style["row-span"] = newRowSpan;
+    //style["height"] = newHeight; height are the same in a row
+    updateTableStyle(row, column, style);
+
+    // update next row object row-span and height
+    newRowSpan = lastRow - middleRow;
+    //newHeight = getHeight(middleRow+1 , lastRow);
+    Row = tableArray[middleRow+1].toArray();
+    Obj = Row[column].toObject();
+    style = Obj["style"].toObject();
+    style["row-span"] = newRowSpan;
+    //style["height"] = newHeight;
+
+    updateTableStyle(middleRow+1 , column, style);
+}
+
+void PdfJsonTable::updateTableStyle(int row, int column, QJsonObject style)
+{
+    QJsonArray Row = tableArray[row].toArray();
+    QJsonObject Obj = Row[column].toObject();
+    Obj["style"] = style;
+    Row.removeAt(column);
+    Row.insert(column, Obj);
+    tableArray.removeAt(row);
+    tableArray.insert(row, Row);
+}
+
 double PdfJsonTable::getRowSpanHeight(int row, int column)
 {
     double height = 0;
     QJsonArray array;
     QJsonObject obj;
-    array = jsonTable[row].toArray();
+    array = tableArray[row].toArray();
     obj = array[column].toObject();
     obj = obj["style"].toObject();
     int rowSpan = obj["row-span"].toInt();
@@ -286,9 +458,9 @@ double PdfJsonTable::getRowSpanHeight(int row, int column)
     if(rowSpan == 1) return height;
     if(rowSpan > 1)
     {
-        for(int i = row+1; i < jsonTable.count(); i++)
+        for(int i = row+1; i < tableArray.count(); i++)
         {
-            array = jsonTable[i].toArray();
+            array = tableArray[i].toArray();
             obj = array[column].toObject();
             obj = obj["style"].toObject();
             rowSpan = obj["row-span"].toInt();

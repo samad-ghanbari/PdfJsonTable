@@ -211,6 +211,28 @@ void JsonTable::updateTableRowHeight()
     }
 }
 
+double JsonTable::getHeight(int startRow, int endRow)
+{
+    double height=0;
+    QJsonArray row;
+    QJsonObject obj;
+
+    int lastRow = table.count() -1 ;
+    if(endRow > lastRow) endRow = lastRow;
+
+    for(int i=startRow;  i <= endRow; i++)
+    {
+        row = table[i].toArray();
+        if(row.count() > 0)
+        {
+            obj = row[0].toObject();
+            height += obj["style"].toObject()["height"].toDouble();
+        }
+    }
+
+    return height;
+}
+
 QJsonObject JsonTable::getRowObject(int row, int index)
 {
     QJsonObject obj = table[row].toArray()[index].toObject();

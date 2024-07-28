@@ -47,8 +47,9 @@ class PdfJsonTable : public QObject
     Q_OBJECT
 public:
     explicit PdfJsonTable(QString outputPath, QString Creator, QString DocName, QString pageSize="A3", QString orientation="landscape", qreal pageMarginLeft=4, qreal pageMarginTop=2, qreal pageMarginRight=4, qreal pageMarginBottom=1.5, QObject *parent = nullptr);
-    void setHeader(QJsonArray *header);
-    void setTable(QJsonArray *table);
+    void setPageTitle(QJsonArray *_titleArray);
+    void setTable(QJsonArray *_table);
+    void setTableHeader(QJsonArray *_tableHeader);
     //#if QT_VERSION > 0x051210
         bool setPage();
 //    #else
@@ -59,14 +60,22 @@ public:
     void preparePage();
 
     bool print();
+    double getHeight(int startRow, int endRow);
+    double getHeight(int row);
+    double getHeight(QJsonArray Row);
+    QJsonObject updateObjectStyle(QJsonObject _object, QString _key, double _val);
+
     bool printCell(int row, int column, QJsonObject obj);
+    void respanRow(int row, int column); // re-rowspan
+    void updateTableStyle(int row, int column, QJsonObject style);
+
     double getRowSpanHeight(int row, int column);
     void updateTableObjectWidth(QJsonArray table);
     void updateRowObjectWidth(QJsonArray row);
     QString lastError();
 
 private:
-    QJsonArray jsonHeader, jsonTable;
+    QJsonArray pageTitleArray, tableArray, tableHeader;
     QPainter *painter;
     QPrinter *printer;
     QPen pen; // for table borders
