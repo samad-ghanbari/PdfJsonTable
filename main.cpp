@@ -31,8 +31,8 @@ int main(int argc, char *argv[])
 
     pageHeader->addRowToTable(row);
 
-    pageHeader->updateTableRowHeight();
-    pageHeader->updateTableRowSpan();
+    pageHeader->updateHeight();
+    pageHeader->updateRowSpan(true);
 
       //table header
     JsonTable *tableHeader = new JsonTable(50, "#000", "#ddd", "tahoma",16);
@@ -184,16 +184,16 @@ int main(int argc, char *argv[])
 
 
 
-    table->updateTableRowHeight();
-    table->updateTableRowSpan(2);
-    table->updateTableRowSpan(false);
+    table->updateHeight();
+    table->updateRowSpan(2);
+    table->updateRowSpan(false);
 
 
     PdfJsonTable *pdf = new PdfJsonTable("Primary.pdf", "test", "danet","A3","landscape",50,20,20,20);
     int width = pdf->getViewPortWidth();
-    pageHeader->updateTableWidth(width);
-    table->updateTableWidth(width);
-    tableHeader->updateTableWidth(width);
+    pageHeader->updateSameWidth(width);
+    table->updateSameWidth(width);
+    tableHeader->updateSameWidth(width);
 
 //    QByteArray bytes = table->toByteArray(table->table);
 //    QTextStream ts(stdout);

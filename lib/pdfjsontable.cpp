@@ -67,14 +67,28 @@ void PdfJsonTable::setPageTitle(QJsonArray *_titleArray)
     pageTitleArray = *_titleArray;
 }
 
-void PdfJsonTable::setTable(QJsonArray *_table)
+void PdfJsonTable::setTable(QJsonArray *_table, QList<int> repeatRows)
 {
     tableArray = *_table;
-}
 
-void PdfJsonTable::setTableHeader(QJsonArray *_tableHeader)
-{
-    tableHeader = *_tableHeader;
+    if(repeatRows.size() > 0)
+    {
+        int j = 0;
+        QJsonArray row;
+        for(int i = 0; i < repeatedArray.size(); i++)
+        {
+            row = tableArray[i].toArray();
+            repeatedArray.insert(j,row);
+            tableArray.removeAt(i);
+            j++;
+        }
+
+    }
+    else
+    {
+        repeatedArray = {}; // repeated rows
+    }
+
 }
 
 int PdfJsonTable::getViewPortWidth()
@@ -134,10 +148,10 @@ void PdfJsonTable::preparePage()
 
     // print repeated header
     double rowHeight;
-    for(int i =0; i < tableHeader.count(); i++)
+    for(int i =0; i < repeatedRow.count(); i++)
     {
         painter->save();
-        row = tableHeader[i].toArray();
+        row = repeatedRow[i].toArray();
         rowHeight = getHeight(row);
         for(int j=0; j < row.count(); j++)
         {

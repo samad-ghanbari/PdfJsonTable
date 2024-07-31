@@ -48,8 +48,7 @@ class PdfJsonTable : public QObject
 public:
     explicit PdfJsonTable(QString outputPath, QString Creator, QString DocName, QString pageSize="A3", QString orientation="landscape", qreal pageMarginLeft=4, qreal pageMarginTop=2, qreal pageMarginRight=4, qreal pageMarginBottom=1.5, QObject *parent = nullptr);
     void setPageTitle(QJsonArray *_titleArray);
-    void setTable(QJsonArray *_table);
-    void setTableHeader(QJsonArray *_tableHeader);
+    void setTable(QJsonArray *_table, QList<int> repeatRows={}); // empty array means no repeat row
     //#if QT_VERSION > 0x051210
         bool setPage();
 //    #else
@@ -75,7 +74,7 @@ public:
     QString lastError();
 
 private:
-    QJsonArray pageTitleArray, tableArray, tableHeader;
+    QJsonArray pageTitleArray, tableArray, repeatedArray;
     QPainter *painter;
     QPrinter *printer;
     QPen pen; // for table borders
