@@ -78,6 +78,7 @@ public:
     void updateHeight(int row, int column , double height);
 
     //update width
+    void updateWidth();
     void updateWidth(int row, int column , double width);
     void updateWidth(int row, double width); // set same width to all objects
     void updateWidth(int row, QList<int> index, double width); // set same streach width to specific objects

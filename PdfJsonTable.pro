@@ -1,4 +1,4 @@
-QT = core gui printsupport
+QT = gui printsupport
 
 CONFIG += c++17
 

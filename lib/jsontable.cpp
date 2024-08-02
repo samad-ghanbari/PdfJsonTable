@@ -233,6 +233,12 @@ void JsonTable::updateHeight(int row, int column, double height)
     table.insert(row, Row);
 }
 
+void JsonTable::updateWidth()
+{
+    // set maximum width of columns to all column objects
+
+}
+
 void JsonTable::updateWidth(int row, int column, double width)
 {
     QJsonArray Row = table[row].toArray();
@@ -527,6 +533,7 @@ void JsonTable::updateFairCell(double viewPortWidth, bool wrapAll)
         }
     }
 
+
     updateHeight();
 }
 
@@ -616,17 +623,25 @@ void JsonTable::resetColumnMap()
             width = Obj["style"].toObject()["width"].toDouble();
             if(width > 0)
             {
-                columnWidth[c] = width;
-                continue;
-            }
-            occupy = calculateOccupy(Obj);
-            if(columnOccupy.contains(c))
-            {
-                if(columnOccupy.value(c) < occupy)
-                    columnOccupy[c] = occupy;
+                if(columnWidth.contains(c))
+                {
+                    if(columnWidth.value(c) < width)
+                        columnWidth[c] = width;
+                }
+                else
+                    columnWidth[c] = width;
             }
             else
-                columnOccupy[c] = occupy;
+            {
+                occupy = calculateOccupy(Obj);
+                if(columnOccupy.contains(c))
+                {
+                    if(columnOccupy.value(c) < occupy)
+                        columnOccupy[c] = occupy;
+                }
+                else
+                    columnOccupy[c] = occupy;
+            }
         }
     }
 
@@ -703,7 +718,13 @@ void JsonTable::calculateColumnMap(double viewPortWidth)
             foreach (int key, diffOccupy.keys())
             {
                 val = diffOccupy.value(key) * diff / devSum;
-                columnWidth[key] = val;
+                columnWidth[key] = columnOccupy.value(key) - val;
+            }
+
+            foreach (int key, columnOccupy.keys())
+            {
+                if(!columnWidth.contains(key))
+                    columnWidth[key] = columnOccupy.value(key);
             }
         }
         else

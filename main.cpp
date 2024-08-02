@@ -4,6 +4,7 @@
 #include <QJsonObject>
 #include <QJsonArray>
 #include <QTextStream>
+#include <QDebug>
 
 int main(int argc, char *argv[])
 {
@@ -31,22 +32,16 @@ int main(int argc, char *argv[])
 
     pageHeader->addRowToTable(row);
 
-    pageHeader->updateHeight();
-    pageHeader->updateRowSpan(true);
-
-      //table header
-    JsonTable *tableHeader = new JsonTable(50, "#000", "#ddd", "tahoma",16);
-    style = tableHeader->createStyle("page-2", 0, 60, "#333", "#fbd","tahoma", 20, true, "center",2);
-    row = tableHeader->createObjects("text", {"Exchange", "saloon", "Device", "Interface"},style);
-    tableHeader->addRowToTable(row);
-
-
 
     //table content
     JsonTable *table = new JsonTable(50, "#000", "#ddd", "tahoma",16);
 
-    style = table->createStyle("device",0, 40, "#444", "#fef","tahoma", 16, false, "left",1);
-    row = table->createObjects("text", {"DSLAM-1", "Switch", "CX600X16", "10G 2/0/0"},style);
+    style = table->createStyle("table-header", 0, 0, "#333", "#fbd","tahoma", 20, true, "center",2);
+    row = table->createObjects("text", {"Exchange", "saloon", "Device", "Interface"},style);
+    table->addRowToTable(row);
+
+    style = table->createStyle("device",0, 0, "#444", "#fef","tahoma", 16, false, "left",1);
+    row = table->createObjects("text", {"DSLAM-1 Here i want to create a long text to check cell fair occupation. cell size is going to be auto resize to fit the content.  cell size is going to be auto resize to fit the content.", "Switch - Data ", "CX600X16", "10G 2/0/0"},style);
     table->addRowToTable(row);
 
     row = table->createObjects("text", {"DSLAM-2", "Data", "CX600X16", "10G 2/0/0"},style);
@@ -55,11 +50,11 @@ int main(int argc, char *argv[])
     //table->addRowToTable(); // empty row for new page
 
     //new page
-//    style = table->createStyle(0, 60, "#333", "#fbd","tahoma", 20, true, "center",2);
+//    style = table->createStyle(0, 0, "#333", "#fbd","tahoma", 20, true, "center",2);
 //    row = table->createObjects("text", {"Exchange", "saloon", "Device", "Interface"},style);
 //    table->addRowToTable(row);
 
-//    style = table->createStyle(0, 40, "#444", "#fef","tahoma", 16, false, "left",1);
+//    style = table->createStyle(0, 0, "#444", "#fef","tahoma", 16, false, "left",1);
     row = table->createObjects("text", {"DSLAM-3", "PCM", "CX600X16", "10G 3/0/0"},style);
     table->addRowToTable(row);
 
@@ -88,7 +83,7 @@ int main(int argc, char *argv[])
     row = table->createObjects("text", {"DSLAM-10", "Switch", "CX600X16", "1G 10/0/0"},style);
     table->addRowToTable(row);
 
-    row = table->createObjects("text", {"DSLAM-11", "Switch", "CX600X16", "10G 11/0/0"},style);
+    row = table->createObjects("text", {"DSLAM-11", "Saloon Switch of The Exchange", "CX600X16", "10G 11/0/0"},style);
     table->addRowToTable(row);
 
 
@@ -107,7 +102,7 @@ int main(int argc, char *argv[])
     row = table->createObjects("text", {"DSLAM-15", "PCM", "CX600X16", "10G 3/0/0"},style);
     table->addRowToTable(row);
 
-    row = table->createObjects("text", {"DSLAM-16", "Switch", "CX600X16", "1G 10/0/0"},style);
+    row = table->createObjects("text", {"DSLAM-16", "Switch", " CX600X16", "1G 10/0/0"},style);
     table->addRowToTable(row);
 
     row = table->createObjects("text", {"DSLAM-17", "Switch", "CX600X16", "10G 11/0/0"},style);
@@ -182,26 +177,27 @@ int main(int argc, char *argv[])
 
 
 
-
-
-    table->updateHeight();
-    table->updateRowSpan(2);
-    table->updateRowSpan(false);
-
-
     PdfJsonTable *pdf = new PdfJsonTable("Primary.pdf", "test", "danet","A3","landscape",50,20,20,20);
     int width = pdf->getViewPortWidth();
+    //qDebug() << width;
     pageHeader->updateSameWidth(width);
-    table->updateSameWidth(width);
-    tableHeader->updateSameWidth(width);
+
+    pageHeader->updateHeight();
+    pageHeader->updateRowSpan(true);
+    // table
+    table->updateFairCell(width, true);
+    table->updateRowSpan(2);
+
+    table->saveJsonAs("table.json");
 
 //    QByteArray bytes = table->toByteArray(table->table);
 //    QTextStream ts(stdout);
 //    ts << bytes << endl;
 
-    pdf->setPageTitle(&pageHeader->table);
-    pdf->setTableHeader(&tableHeader->table);
-    pdf->setTable(&table->table);
+    pdf->setPageHeader(&pageHeader->table);
+//    QList<int> list;
+//    list << 0;
+    pdf->setTable(&table->table, {0});
 
 
     pdf->print();
