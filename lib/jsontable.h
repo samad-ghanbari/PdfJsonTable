@@ -101,6 +101,8 @@ public:
     void resetColumnMap(); // fill maxColumnOccupy MAP and columnWidth MAP columnIndex=>occupy
     void calculateColumnMap(double viewPortWidth); // fill columnWidth MAP fairly
     double calculateWrapHeight(double occupy, double width, double fontSize);
+    QMap<int, double> columnWidthUpperThreshold(QMap<int, double> occupyMap, double diff);
+    QMap<int, double> columnWidthDownThreshold(QMap<int, double> occupyMap, double diff);
 
 
     QJsonArray table; // [ [ {}, {}, {}, ... ], [], [], [] ]

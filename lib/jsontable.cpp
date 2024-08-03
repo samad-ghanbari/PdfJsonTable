@@ -698,88 +698,135 @@ void JsonTable::calculateColumnMap(double viewPortWidth)
     else
     {
         // total > viewPort
+        // upper-threshold : columns > 500 but if they are not smaller than 300
+        // down-threshold  : columns > 200
+        // all columns     : if still decrease needed do it on all columns
+
+        double diff = viewPortWidth - total;
+        columnOccupy = columnWidthUpperThreshold(columnOccupy, diff);
+        totalOccupy = 0;
+        foreach (int key, columnOccupy.keys())
+        {
+            totalOccupy += columnOccupy.value(key); // based on calculation
+        }
+        total = totalOccupy + totalGivenWidth;
+        diff = total - viewPortWidth;
+        if(diff > 0)
+        {
+            columnOccupy = columnWidthDownThreshold(columnOccupy, diff);
+            totalOccupy = 0;
+            foreach (int key, columnOccupy.keys())
+            {
+                totalOccupy += columnOccupy.value(key); // based on calculation
+            }
+            total = totalOccupy + totalGivenWidth;
+
+            diff = total - viewPortWidth;
+            if(diff > 0)
+            {
+                // on all auto-width-columns
+                foreach (int key, columnOccupy.keys())
+                {
+                    double val = diff * columnOccupy.value(key)/totalOccupy;
+                    columnOccupy[key] = val;
+                }
+            }
+        }
+
+        foreach (int key, columnOccupy.keys())
+        {
+            columnWidth[key] = columnOccupy.value(key);
+        }
+
+
+
+
+
+
+        // total > viewPort
         // fairly shirinking column
         // 1- find mean of occupy
         // 2- find difference
         // 3- select columns with big variations
         // 4- decrease selected column to fit the page
-        double diff = total - viewPortWidth;
-        QMap<int, double> diffOccupy;
-        int count = columnOccupy.size();
-        double dev;
-        double meanOccupy = totalOccupy / count;
-        // positive deviations are selected
-        double devSum = 0;
-        foreach (int key, columnOccupy.keys())
-        {
-            dev = columnOccupy.value(key) - meanOccupy;
-            if(dev >= 0)
-            {
-                diffOccupy[key] = dev;
-                devSum += dev;
-            }
-        }
+//        double diff = total - viewPortWidth;
+//        QMap<int, double> diffOccupy;
+//        int count = columnOccupy.size();
+//        double dev;
+//        double meanOccupy = totalOccupy / count;
+//        // positive deviations are selected
+//        double devSum = 0;
+//        foreach (int key, columnOccupy.keys())
+//        {
+//            dev = columnOccupy.value(key) - meanOccupy;
+//            if(dev >= 0)
+//            {
+//                diffOccupy[key] = dev;
+//                devSum += dev;
+//            }
+//        }
 
-        if(diff <= devSum)
-        {
-            double val = 0;
-            foreach (int key, diffOccupy.keys())
-            {
-                val = diffOccupy.value(key) * diff / devSum;
-                columnWidth[key] = columnOccupy.value(key) - val;
-            }
+//        if(diff <= devSum)
+//        {
+//            double val = 0;
+//            foreach (int key, diffOccupy.keys())
+//            {
+//                val = diffOccupy.value(key) * diff / devSum;
+//                columnWidth[key] = columnOccupy.value(key) - val;
+//            }
 
-            foreach (int key, columnOccupy.keys())
-            {
-                if(!columnWidth.contains(key))
-                    columnWidth[key] = columnOccupy.value(key);
-            }
-        }
-        else
-        {
-            // diff is bigger than deviation sum
-            double occupySum = 0;
-            double val = 0;
+//            foreach (int key, columnOccupy.keys())
+//            {
+//                if(!columnWidth.contains(key))
+//                    columnWidth[key] = columnOccupy.value(key);
+//            }
+//        }
+//        else
+//        {
+//            // diff is bigger than deviation sum
+//            double occupySum = 0;
+//            double val = 0;
 
-            foreach (int key, columnOccupy.keys())
-            {
-                occupySum += columnOccupy.value(key);
-            }
+//            foreach (int key, columnOccupy.keys())
+//            {
+//                occupySum += columnOccupy.value(key);
+//            }
 
-            if(occupySum >= diff)
-            {
-                foreach (int key, columnOccupy.keys())
-                {
-                    val = columnOccupy.value(key) * (1 - diff / occupySum);
-                    columnWidth[key] = val;
-                }
-            }
-            else
-            {
-                // weight fixed widths too
-                double val, sum = 0;
-                foreach (int key, columnOccupy.keys())
-                {
-                    sum += columnOccupy.value(key);
-                }
-                foreach (int key, columnWidth.keys())
-                {
-                    sum += columnWidth.value(key);
-                }
+//            if(occupySum >= diff)
+//            {
+//                foreach (int key, columnOccupy.keys())
+//                {
+//                    val = columnOccupy.value(key) * (1 - diff / occupySum);
+//                    columnWidth[key] = val;
+//                }
+//            }
+//            else
+//            {
+//                // weight fixed widths too
+//                double val, sum = 0;
+//                foreach (int key, columnOccupy.keys())
+//                {
+//                    sum += columnOccupy.value(key);
+//                }
+//                foreach (int key, columnWidth.keys())
+//                {
+//                    sum += columnWidth.value(key);
+//                }
 
-                foreach (int key, columnWidth.keys())
-                {
-                    val = columnWidth.value(key) * (1 - diff / sum);
-                    columnWidth[key] = val;
-                }
-                foreach (int key, columnOccupy.keys())
-                {
-                    val = columnOccupy.value(key) * (1 - diff / sum);
-                    columnWidth[key] = val;
-                }
-            }
-        }
+//                foreach (int key, columnWidth.keys())
+//                {
+//                    val = columnWidth.value(key) * (1 - diff / sum);
+//                    columnWidth[key] = val;
+//                }
+//                foreach (int key, columnOccupy.keys())
+//                {
+//                    val = columnOccupy.value(key) * (1 - diff / sum);
+//                    columnWidth[key] = val;
+//                }
+//            }
+//        }
 
+        //
     }
 }
 
@@ -790,6 +837,54 @@ double JsonTable::calculateWrapHeight(double occupy, double width, double fontSi
     int lines = ceil(occupy / width);
     double height = lines * fontSize * 4/3;
     return height;
+}
+
+QMap<int, double> JsonTable::columnWidthUpperThreshold(QMap<int, double> occupyMap, double diff)
+{
+    double upperThreshold = 500, breakPoint = 300;
+    double sum = 0;
+    foreach (int key, occupyMap.keys())
+    {
+        sum += occupyMap.value(key);
+    }
+
+    foreach (int key, occupyMap.keys())
+    {
+        if(occupyMap.value(key) > upperThreshold)
+        {
+            double val = diff * occupyMap.value(key) / sum;
+            if(val < breakPoint)
+                val = 300;
+
+            occupyMap[key] = val;
+        }
+    }
+
+    return occupyMap;
+}
+
+QMap<int, double> JsonTable::columnWidthDownThreshold(QMap<int, double> occupyMap, double diff)
+{
+    double downThreshold = 200, breakPoint = 150;;
+    double sum = 0;
+    foreach (int key, occupyMap.keys())
+    {
+        sum += occupyMap.value(key);
+    }
+
+    foreach (int key, occupyMap.keys())
+    {
+        if(occupyMap.value(key) > downThreshold)
+        {
+            double val = diff * occupyMap.value(key) / sum;
+            if(val < breakPoint)
+                val = 150;
+
+            occupyMap[key] = val;
+        }
+    }
+
+    return occupyMap;
 }
 
 double JsonTable::calculateOccupy(QJsonObject &obj)
