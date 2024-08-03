@@ -6,7 +6,7 @@
 #include <QPixmap>
 #include <QtMath>
 
-JsonTable::JsonTable(double _default_height, QString _default_background_color, QString _default_color, QString _default_font_family, double _default_font_size, QObject *parent )
+JsonTable::JsonTable(double _default_height, QString _default_background_color, QString _default_color, QString _default_font_family, double _default_font_size, int _default_hPadding, int _default_vPadding, QObject *parent )
     : QObject{parent}
 {
     this->default_height = _default_height;
@@ -14,9 +14,11 @@ JsonTable::JsonTable(double _default_height, QString _default_background_color, 
     this->default_color = _default_color;
     this->default_font_size = _default_font_size;
     this->default_font_family = _default_font_family;
+    this->default_hPadding = _default_hPadding;
+    this->default_vPadding = _default_vPadding;
 }
 
-QJsonObject JsonTable::createStyle(QString _name, double _width, double _height, QString _color, QString _backgroundColor, QString _fontFamily, double _fontSize, bool _bold, QString _align, int _border, int _rowSpan)
+QJsonObject JsonTable::createStyle(QString _name, double _width, double _height, QString _color, QString _backgroundColor, QString _fontFamily, double _fontSize, bool _bold, QString _align, int _border, int _hPadding, int _vPadding, int _rowSpan)
 {
     QJsonObject obj;
     obj["name"] = _name;
@@ -30,6 +32,8 @@ QJsonObject JsonTable::createStyle(QString _name, double _width, double _height,
     obj["bold"]= _bold;
     obj["align"]= _align;// left center right
     obj["border"] = _border;
+    obj["h-padding"] = (_hPadding == 0)? default_hPadding : _hPadding;
+    obj["v-padding"] = (_vPadding == 0)? default_vPadding : _vPadding;
     obj["row-span"] = _rowSpan; // 0:default -1:skip n>0:n-span this field will be updated by rowSpanAnalyser
     return obj;
 }
@@ -165,6 +169,7 @@ bool JsonTable::loadJson(QString fileName)
 float JsonTable::getRowMaxHeight(QJsonArray Row)
 {
     double maxHeight = 0, height;
+    int vPadding = 0;
     QJsonObject item, style;
     for (int i=0; i < Row.count(); i++)
     {
@@ -172,11 +177,14 @@ float JsonTable::getRowMaxHeight(QJsonArray Row)
         style = item.value("style").toObject();
         height = style.value("height").toDouble();
         if(maxHeight < height)
+        {
             maxHeight = height;
+            vPadding = style.value("v-padding").toInt();
+        }
     }
 
     //if(maxHeight > 100) maxHeight = 100;
-    return maxHeight;
+    return maxHeight + 2 * vPadding;
 }
 
 QJsonObject JsonTable::updateStyle(QJsonObject _object, QString _key, double _val)

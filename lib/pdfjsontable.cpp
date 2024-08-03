@@ -307,6 +307,7 @@ bool PdfJsonTable::printCell(int row, int column, QJsonObject obj)
     bool bold = style.value("bold").toBool();
     QString align = style.value("align").toString();
     int border = style.value("border").toInt();
+    int hPadding = style.value("h-padding").toInt();
     int rowSpan = style.value("row-span").toInt();
     QString _color = style.value("color").toString();
     QString _backgroundColor = style.value("background-color").toString();
@@ -334,6 +335,7 @@ bool PdfJsonTable::printCell(int row, int column, QJsonObject obj)
     painter->setPen(QPen(QBrush(color),border));
     painter->setFont(font);
     QRect rect(0,0,width, height );
+    QRect innerRect(hPadding,0,width-2*hPadding, height );
     painter->fillRect(rect, backgroundColor);
 
     if(type.compare("text", Qt::CaseInsensitive) == 0)
@@ -343,11 +345,11 @@ bool PdfJsonTable::printCell(int row, int column, QJsonObject obj)
         painter->drawRect(rect);
 
         if(align.compare("center",Qt::CaseInsensitive) == 0)
-            painter->drawText(rect, Qt::AlignVCenter | Qt::AlignHCenter |  Qt::TextWordWrap , value);
+            painter->drawText(innerRect, Qt::AlignVCenter | Qt::AlignHCenter |  Qt::TextWordWrap , value);
         else if(align.compare("right",Qt::CaseInsensitive) == 0)
-            painter->drawText(rect, Qt::AlignVCenter | Qt::AlignRight | Qt::TextWordWrap, value);
+            painter->drawText(innerRect, Qt::AlignVCenter | Qt::AlignRight | Qt::TextWordWrap, value);
         else
-            painter->drawText(rect, Qt::AlignVCenter | Qt::AlignLeft | Qt::TextWordWrap, value);
+            painter->drawText(innerRect, Qt::AlignVCenter | Qt::AlignLeft | Qt::TextWordWrap, value);
 
         painter->translate(width, 0);
     }

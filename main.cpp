@@ -13,7 +13,7 @@ int main(int argc, char *argv[])
     // page header
     JsonTable *pageHeader = new JsonTable(50, "#eef", "#333", "tahoma",20);
     // 420mm /3 * 3.7 = 518
-    QJsonObject style = pageHeader->createStyle("page-1", 0, 100, "#00A", "#fcc","tahoma", 18, true, "center",0);
+    QJsonObject style = pageHeader->createStyle("page-1", 0, 100, "#00A", "#EEF","tahoma", 18, true, "center",0);
     QJsonArray row = pageHeader->createObjects("text", {"2024", "Report", "DaNet"},style);
     style = pageHeader->createStyle("icon", 50, 50, "#000", "", "tahoma", 22, true, "right", 1, 0);
     QJsonObject obj = pageHeader->createObject("img",":/tct.jpg",style);
@@ -22,11 +22,11 @@ int main(int argc, char *argv[])
 
     pageHeader->emptyJsonArray(row);
 
-    style = pageHeader->createStyle("exchange name", 500, 80, "#000", "#f00", "tahoma", 18, true, "center");
+    style = pageHeader->createStyle("exchange name", 500, 80, "#F00", "#fEE", "tahoma", 18, true, "center");
     obj = pageHeader->createObject("text", "BA" ,style);
     pageHeader->addObjectToRow(row,obj);
 
-    style = pageHeader->createStyle("saloon-name", 0, 80, "#f00", "#0e0", "tahoma", 24, true, "center"); // stretch column
+    style = pageHeader->createStyle("saloon-name", 0, 80, "#A00", "#FDD", "tahoma", 24, true, "center"); // stretch column
     obj = pageHeader->createObject("text", "Saloon Switch/Data" ,style);
     pageHeader->addObjectToRow(row,obj);
 
@@ -34,13 +34,13 @@ int main(int argc, char *argv[])
 
 
     //table content
-    JsonTable *table = new JsonTable(50, "#000", "#ddd", "tahoma",16);
+    JsonTable *table = new JsonTable(50, "#888", "#ddd", "tahoma",16, 5, 20);
 
-    style = table->createStyle("table-header", 0, 0, "#333", "#fbd","tahoma", 20, true, "center",2);
+    style = table->createStyle("table-header", 0, 0, "#333", "#EFE","tahoma", 20, true, "center",2);
     row = table->createObjects("text", {"Exchange", "saloon", "Device", "Interface"},style);
     table->addRowToTable(row);
 
-    style = table->createStyle("device",0, 0, "#444", "#fef","tahoma", 16, false, "left",1);
+    style = table->createStyle("device",0, 0, "#555", "#FEE","tahoma", 16, false, "left",1);
     row = table->createObjects("text", {"DSLAM-1 Here i want to create a long text to check cell fair occupation. cell size is going to be auto resize to fit the content.  cell size is going to be auto resize to fit the content.", "Switch - Data ", "CX600X16", "10G 2/0/0"},style);
     table->addRowToTable(row);
 
@@ -102,7 +102,7 @@ int main(int argc, char *argv[])
     row = table->createObjects("text", {"DSLAM-15", "PCM", "CX600X16", "10G 3/0/0"},style);
     table->addRowToTable(row);
 
-    row = table->createObjects("text", {"DSLAM-16", "Switch", " CX600X16", "1G 10/0/0"},style);
+    row = table->createObjects("text", {"DSLAM-16", "Switch", "CX600X16", "1G 10/0/0"},style);
     table->addRowToTable(row);
 
     row = table->createObjects("text", {"DSLAM-17", "Switch", "CX600X16", "10G 11/0/0"},style);
