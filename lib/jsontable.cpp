@@ -154,6 +154,27 @@ void JsonTable::setAlternativeRows(QString background1, QString background2, int
     }
 }
 
+void JsonTable::highlightRow(int row, QString highlightColor)
+{
+    QJsonArray Row = table[row].toArray();
+    Row = updateStyle(Row, "background-color", highlightColor);
+
+    table.removeAt(row);
+    table.insert(row, Row);
+}
+
+void JsonTable::highlightRow(QList<int> rows, QString highlightColor)
+{
+    QJsonArray Row;
+    for(int r=0; r< rows.size(); r++)
+    {
+        Row = table[rows[r]].toArray();
+        Row = updateStyle(Row, "background-color", highlightColor);
+        table.removeAt(rows[r]);
+        table.insert(rows[r], Row);
+    }
+}
+
 bool JsonTable::saveJsonAs(QString fileName)
 {
     QFile file(fileName);

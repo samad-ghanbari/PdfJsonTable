@@ -179,6 +179,10 @@ int main(int argc, char *argv[])
 
     //table->setAlternativeRows("#FFFFFF", "#EEEFEF", 1);
     table->setAlternativeRows();
+    //highlight row
+    table->highlightRow(5, "#FFAABB");
+    // highligh rows
+    table->highlightRow({8,14,20});
 
 
     PdfJsonTable *pdf = new PdfJsonTable("Primary.pdf", "test", "danet","A3","landscape");
