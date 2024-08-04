@@ -6,7 +6,7 @@
 #include <QPixmap>
 #include <QtMath>
 
-JsonTable::JsonTable(double _default_height, QString _default_background_color, QString _default_color, QString _default_font_family, double _default_font_size, int _default_hPadding, int _default_vPadding, QObject *parent )
+JsonTable::JsonTable(double _default_height, QString _default_color, QString _default_background_color, QString _default_font_family, double _default_font_size, int _default_hPadding, int _default_vPadding, QObject *parent )
     : QObject{parent}
 {
     this->default_height = _default_height;
@@ -21,6 +21,7 @@ JsonTable::JsonTable(double _default_height, QString _default_background_color, 
 QJsonObject JsonTable::createStyle(QString _name, double _width, double _height, QString _color, QString _backgroundColor, QString _fontFamily, double _fontSize, bool _bold, QString _align, int _border, int _hPadding, int _vPadding, int _rowSpan)
 {
     QJsonObject obj;
+
     obj["name"] = _name;
     obj["width"] = (_width < 0)? 0 : _width;
     obj["height"] = (_height == 0)? default_height : _height;
@@ -134,6 +135,25 @@ QByteArray JsonTable::toByteArray(QJsonArray array)
     return bytes;
 }
 
+void JsonTable::setAlternativeRows(QString background1, QString background2, int startRow)
+{
+    QString bg;
+    QJsonArray Row;
+    for(int row=startRow; row < table.size(); row++)
+    {
+        if(row%2 == 0)
+            bg = background1;
+        else
+            bg = background2;
+
+        Row = table[row].toArray();
+        Row = updateStyle(Row, "background-color", bg);
+
+        table.removeAt(row);
+        table.insert(row, Row);
+    }
+}
+
 bool JsonTable::saveJsonAs(QString fileName)
 {
     QFile file(fileName);
@@ -187,6 +207,21 @@ float JsonTable::getRowMaxHeight(QJsonArray Row)
     return maxHeight + 2 * vPadding;
 }
 
+QJsonObject JsonTable::updateStyle(QJsonObject _object, QString _key, QString _val)
+{
+    QJsonObject style;
+    if(_object.contains("style"))
+    {
+        style = _object["style"].toObject();
+        if( style.contains(_key) )
+                  style[_key] = _val;
+
+        _object["style"] = style;
+    }
+
+    return _object;
+}
+
 QJsonObject JsonTable::updateStyle(QJsonObject _object, QString _key, double _val)
 {
     QJsonObject style;
@@ -194,12 +229,25 @@ QJsonObject JsonTable::updateStyle(QJsonObject _object, QString _key, double _va
     {
         style = _object["style"].toObject();
         if( style.contains(_key) )
-            style[_key] = _val;
+                  style[_key] = _val;
 
         _object["style"] = style;
     }
 
     return _object;
+}
+
+QJsonArray JsonTable::updateStyle(QJsonArray row, QString key, QString val)
+{
+    QJsonObject item;
+    for(int i=0; i < row.count(); i++)
+    {
+        item = this->updateStyle(row.at(i).toObject(), key , val);
+        row.removeAt(i);
+        row.insert(i, item);
+    }
+
+    return row;
 }
 
 QJsonArray JsonTable::updateStyle(QJsonArray row, QString key, double val)
@@ -239,12 +287,6 @@ void JsonTable::updateHeight(int row, int column, double height)
 
     table.removeAt(row);
     table.insert(row, Row);
-}
-
-void JsonTable::updateWidth()
-{
-    // set maximum width of columns to all column objects
-
 }
 
 void JsonTable::updateWidth(int row, int column, double width)

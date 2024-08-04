@@ -11,6 +11,8 @@ style: {name; width; height; occupy; color; background-color; font-family;  font
 - Row objects width all 0 width:          same width objects
 - Row objects width multiple 0 width:     stretch left space width objects
 
+Alternative background color: background-color list
+
 auto vertical center align
 horizontal center by style
 row-item: { type, value, style }                QJsonObject
@@ -32,6 +34,8 @@ occupy : automatically calculate width needed for String of object
 #include <QObject>
 #include <QStringList>
 #include <QMap>
+#include <QVariant>
+
 // json
 #include <QJsonObject>
 #include <QJsonValue>
@@ -42,7 +46,7 @@ class JsonTable : public QObject
 {
     Q_OBJECT
 public:
-    explicit JsonTable(double _default_height,  QString _default_color="#333", QString _default_background_color="#eee", QString _default_font_family="tahoma", double _default_font_size=14, int _default_hPadding=5, int _default_vPadding=5,  QObject *parent = nullptr);
+    explicit JsonTable(double _default_height,  QString _default_color="#000", QString _default_background_color="#eee", QString _default_font_family="tahoma", double _default_font_size=14, int _default_hPadding=5, int _default_vPadding=5,  QObject *parent = nullptr);
     QJsonObject createStyle(QString _name, double _width=0, double _height=0, QString _color=NULL, QString _backgroundColor=NULL, QString _fontFamily=NULL, double _fontSize=0, bool _bold=false, QString _align="center", int _border=1, int _hPadding=0, int _vPadding=0, int _rowSpan=0);
     QJsonObject createObject(QString _type, QString _value, QJsonObject _style);
     QJsonArray createObjects(QString _type, QStringList  _values, QJsonObject _style);
@@ -55,6 +59,7 @@ public:
     QByteArray toByteArray();
     QByteArray toByteArray(QJsonObject obj);
     QByteArray toByteArray(QJsonArray array);
+    void setAlternativeRows(QString background1="#FFF", QString background2="#FFFAFA", int startRow=1);
     bool saveJsonAs(QString fileName);
     bool loadJson(QString fileName);
 
@@ -70,7 +75,9 @@ public:
     double getMaxOccupy(int column);
 
     //update style
+    QJsonObject updateStyle(QJsonObject _object, QString _key, QString _val);
     QJsonObject updateStyle(QJsonObject _object, QString _key, double _val);
+    QJsonArray  updateStyle(QJsonArray row, QString key, QString val);
     QJsonArray  updateStyle(QJsonArray row, QString key, double val);
 
     //update height
@@ -78,7 +85,6 @@ public:
     void updateHeight(int row, int column , double height);
 
     //update width
-    void updateWidth();
     void updateWidth(int row, int column , double width);
     void updateWidth(int row, double width); // set same width to all objects
     void updateWidth(int row, QList<int> index, double width); // set same streach width to specific objects
@@ -101,7 +107,7 @@ public:
     void resetColumnMap(); // fill maxColumnOccupy MAP and columnWidth MAP columnIndex=>occupy
     void calculateColumnMap(double viewPortWidth); // fill columnWidth MAP fairly
     double calculateWrapHeight(double occupy, double width, double fontSize);
-    void updateColumnOccupy(double viewPortWidth, int upperThreshold=-1, int breakPoint=-1);
+    void updateColumnOccupy(double viewPortWidth, int upperThreshold=-1 , int breakPoint=-1);
 
     QJsonArray table; // [ [ {}, {}, {}, ... ], [], [], [] ]
     QString default_background_color, default_color, default_font_family;

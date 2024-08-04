@@ -41,13 +41,14 @@ B10 32 x 45 mm
 
 Letter 216 x 279 mm
 
+A3: 1550 : top-5 bottom-5 right-18 left-18
 */
 
 class PdfJsonTable : public QObject
 {
     Q_OBJECT
 public:
-    explicit PdfJsonTable(QString outputPath, QString Creator, QString DocName, QString pageSize="A3", QString orientation="landscape", qreal pageMarginLeft=4, qreal pageMarginTop=2, qreal pageMarginRight=4, qreal pageMarginBottom=1.5, QObject *parent = nullptr);
+    explicit PdfJsonTable(QString outputPath, QString Creator, QString DocName, QString pageSize="A3", QString orientation="landscape", qreal pageMarginLeft=18, qreal pageMarginTop=5, qreal pageMarginRight=18, qreal pageMarginBottom=5, QObject *parent = nullptr);
     void setPageHeader(QJsonArray *_headerArray);
     void setTable(QJsonArray *_table, QList<int> _repeatedRows={}); // empty array means no repeat row
     //#if QT_VERSION > 0x051210
