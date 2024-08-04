@@ -1,5 +1,9 @@
 <RCC>
     <qresource prefix="/">
-        <file>tct.jpg</file>
+        <file>ansible.png</file>
+        <file>docker.png</file>
+        <file>kuber.png</file>
+        <file>git.png</file>
+        <file>tct.png</file>
     </qresource>
 </RCC>

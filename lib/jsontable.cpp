@@ -71,6 +71,22 @@ QJsonArray JsonTable::createObjects(QString _type, QStringList _values, QJsonObj
 
 QJsonArray JsonTable::addObjectToRow(QJsonArray &row, QJsonObject item)
 {
+    QJsonObject style = item["style"].toObject();
+    QString type = item["type"].toString();
+    double  height = style.value("height").toDouble();
+    if(type.compare("img", Qt::CaseInsensitive) == 0)
+    {
+        if(height == 0)
+        {
+            QPixmap img(item.value("value").toString());
+            height = img.size().height();
+
+            style["height"] = height;
+
+            item.remove("style");
+            item["style"] = style;
+        }
+    }
     row.append(item);
     return row;
 }
@@ -531,6 +547,8 @@ void JsonTable::updateFairCell(double viewPortWidth, bool wrapAll)
     QJsonObject Obj;
     QMap<QString, double> who; // width-height-occupy
     double width, height, occupy, fontSize;
+    QString type;
+    bool textFlag;
 
     resetColumnMap(); // columnOccupy and columnWidth
     calculateColumnMap(viewPortWidth);
@@ -541,6 +559,8 @@ void JsonTable::updateFairCell(double viewPortWidth, bool wrapAll)
         for(int c=0; c < Row.count(); c++)
         {
             Obj = Row[c].toObject();
+            type = Obj.value("type").toString();
+            textFlag = (type.compare("text", Qt::CaseInsensitive) == 0)? true: false;
             who = getWHO(Obj);
             fontSize = Obj["style"].toObject()["font-size"].toDouble();
 
@@ -549,8 +569,11 @@ void JsonTable::updateFairCell(double viewPortWidth, bool wrapAll)
             {
                 if(wrapAll)
                 {
-                    height = calculateWrapHeight(who.value("occupy"), who.value("width"), fontSize);
-                    updateHeight(r, c, height);
+                    if(textFlag)
+                    {
+                         height = calculateWrapHeight(who.value("occupy"), who.value("width"), fontSize);
+                         updateHeight(r, c, height);
+                    }
                 }
                 else
                     continue;
@@ -566,8 +589,10 @@ void JsonTable::updateFairCell(double viewPortWidth, bool wrapAll)
                     height = calculateWrapHeight(who.value("occupy"), width, fontSize);
                 }
                 else height = fontSize;
-
-                updateHeight(r,c, height);
+                if(textFlag)
+                {
+                    updateHeight(r,c, height);
+                }
                 continue;
             }
             // * width=0 and given hight
@@ -587,8 +612,11 @@ void JsonTable::updateFairCell(double viewPortWidth, bool wrapAll)
 
                 if(wrapAll)
                 {
-                    height = calculateWrapHeight(who.value("occupy"), width, fontSize);
-                    updateHeight(r,c, height);
+                    if(textFlag)
+                    {
+                        height = calculateWrapHeight(who.value("occupy"), width, fontSize);
+                        updateHeight(r,c, height);
+                    }
                 }
             }
             // * width=0 and hight=0
@@ -603,8 +631,10 @@ void JsonTable::updateFairCell(double viewPortWidth, bool wrapAll)
                 if(width < occupy)
                     height = calculateWrapHeight(who.value("occupy"), width, fontSize);
                 else height = fontSize;
-
-                updateHeight(r, c, height);
+                if(textFlag)
+                {
+                    updateHeight(r, c, height);
+                }
                 updateWidth(r, c, width);
             }
         }
