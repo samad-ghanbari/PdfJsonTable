@@ -83,7 +83,8 @@ int main(int argc, char *argv[])
     row = table->createObjects("text", {"DSLAM-10", "Switch", "CX600X16", "1G 10/0/0"},style);
     table->addRowToTable(row);
 
-    row = table->createObjects("text", {"DSLAM-11", "Saloon Switch of The Exchange", "CX600X16", "10G 11/0/0"},style);
+    row = table->createObjects("text", {"DSLAM-11", "Saloon Switch of The Exchange Saloon Switch of The Exchange", "CX600X16", "10G 11/0/0"},style);
+    //row = table->createObjects("text", {"DSLAM-11", "Switch", "CX600X16", "10G 11/0/0"},style);
     table->addRowToTable(row);
 
 
@@ -105,12 +106,13 @@ int main(int argc, char *argv[])
     row = table->createObjects("text", {"DSLAM-16", "Switch", "CX600X16", "1G 10/0/0"},style);
     table->addRowToTable(row);
 
-    row = table->createObjects("text", {"DSLAM-17", "Switch", "CX600X16", "10G 11/0/0"},style);
+    //row = table->createObjects("text", {"DSLAM-17", "Switch", "CX600X16 NetEngine Huawei", "10G 11/0/0"},style);
+    row = table->createObjects("text", {"DSLAM-17", "Switch", "CX600X8", "10G 11/0/0"},style);
     table->addRowToTable(row);
 
 
-
     row = table->createObjects("text", {"DSLAM-18", "PCM", "CX600X16", "10G 3/0/0"},style);
+    //row = table->createObjects("text", {"DSLAM-18", "PCM", "CX600X16", " Port 10G 3/0/0 SFP+ 10Km"},style);
     table->addRowToTable(row);
 
     row = table->createObjects("text", {"DSLAM-19", "Switch", "CX600X16", "1G 10/0/0"},style);
