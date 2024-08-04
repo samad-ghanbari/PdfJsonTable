@@ -212,11 +212,18 @@ float JsonTable::getRowMaxHeight(QJsonArray Row)
     double maxHeight = 0, height;
     int vPadding = 0;
     QJsonObject item, style;
+    QString type;
     for (int i=0; i < Row.count(); i++)
     {
         item = Row.at(i).toObject();
         style = item.value("style").toObject();
+        type = style["type"].toString();
         height = style.value("height").toDouble();
+        if( (height == 0) && (type.compare("img", Qt::CaseInsensitive) == 0) )
+        {
+            QPixmap img(item.value("value").toString());
+            height = img.size().height();
+        }
         if(maxHeight < height)
         {
             maxHeight = height;
@@ -224,7 +231,6 @@ float JsonTable::getRowMaxHeight(QJsonArray Row)
         }
     }
 
-    //if(maxHeight > 100) maxHeight = 100;
     return maxHeight + 2 * vPadding;
 }
 

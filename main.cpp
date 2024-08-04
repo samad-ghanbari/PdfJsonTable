@@ -15,7 +15,7 @@ int main(int argc, char *argv[])
     // 420mm /3 * 3.7 = 518
     QJsonObject style = pageHeader->createStyle("page-1", 0, 100, "#00A", "#EEF","tahoma", 18, true, "center",0);
     QJsonArray row = pageHeader->createObjects("text", {"2024", "Report", "DaNet"},style);
-    style = pageHeader->createStyle("icon", 50, 50, "#000", "", "tahoma", 22, true, "right", 1, 0);
+    style = pageHeader->createStyle("icon", 70, 50, "#000", "", "tahoma", 22, true, "center", 0, 0, 0);
     QJsonObject obj = pageHeader->createObject("img",":/tct.jpg",style);
     pageHeader->addObjectToRow(row,obj);
     pageHeader->addRowToTable(row);
@@ -40,11 +40,15 @@ int main(int argc, char *argv[])
     row = table->createObjects("text", {"Exchange", "saloon", "Device", "Interface"},style);
     table->addRowToTable(row);
 
-    style = table->createStyle("device",0, 0, "#000", "#FEE","tahoma", 16, false, "left",1);
+    style = table->createStyle("device",0, 0, "#000", "#FEE","tahoma", 16, false, "left",2);
     row = table->createObjects("text", {"DSLAM-1 Here i want to create a long text to check cell fair occupation. cell size is going to be auto resize to fit the content.  cell size is going to be auto resize to fit the content.", "Switch - Data ", "CX600X16", "10G 2/0/0"},style);
     table->addRowToTable(row);
 
-    row = table->createObjects("text", {"DSLAM-2", "Data", "CX600X16", "10G 2/0/0"},style);
+    row = table->createObjects("text", {"DSLAM-2", "Data", "CX600X16"},style);
+    QJsonObject style1 = table->createStyle("icon",0 , 0, "#000", "", "",0, true, "center",1);
+    obj = table->createObject("img",":/tct.jpg",style1);
+    table->addObjectToRow(row, obj);
+
     table->addRowToTable(row);
 
     //table->addRowToTable(); // empty row for new page
@@ -196,7 +200,7 @@ int main(int argc, char *argv[])
     table->updateFairCell(width, true);
     table->updateRowSpan(2);
 
-    //table->saveJsonAs("table.json");
+    table->saveJsonAs("table.json");
 
 //    QByteArray bytes = table->toByteArray(table->table);
 //    QTextStream ts(stdout);

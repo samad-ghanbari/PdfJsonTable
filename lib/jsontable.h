@@ -59,7 +59,7 @@ public:
     QByteArray toByteArray();
     QByteArray toByteArray(QJsonObject obj);
     QByteArray toByteArray(QJsonArray array);
-    void setAlternativeRows(QString background1="#FFF", QString background2="#FFFAFA", int startRow=1);
+    void setAlternativeRows(QString background1="#FFF", QString background2="#F5F5F5", int startRow=1);
     void highlightRow(int row, QString highlightColor="#FFEE55");
     void highlightRow(QList<int> rows, QString highlightColor="#FFEE55");
     bool saveJsonAs(QString fileName);

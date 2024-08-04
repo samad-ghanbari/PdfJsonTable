@@ -332,18 +332,17 @@ bool PdfJsonTable::printCell(int row, int column, QJsonObject obj)
     font.setBold(bold);
 
     height = (height == 0)? 50 : height;
-    painter->setPen(QPen(QBrush(color),border));
+    painter->setPen(QPen(QBrush(color), border));
     painter->setFont(font);
     QRect rect(0,0,width, height );
-    QRect innerRect(hPadding,0,width-2*hPadding, height );
     painter->fillRect(rect, backgroundColor);
+    if(border > 0)
+        painter->drawRect(rect);
 
     if(type.compare("text", Qt::CaseInsensitive) == 0)
     {
         //text
-
-        painter->drawRect(rect);
-
+        QRect innerRect(hPadding,0,width-2*hPadding, height );
         if(align.compare("center",Qt::CaseInsensitive) == 0)
             painter->drawText(innerRect, Qt::AlignVCenter | Qt::AlignHCenter |  Qt::TextWordWrap , value);
         else if(align.compare("right",Qt::CaseInsensitive) == 0)
