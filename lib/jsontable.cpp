@@ -1,4 +1,5 @@
 #include "jsontable.h"
+#include <QString>
 #include <QFile>
 #include <QByteArray>
 #include <QJsonParseError>
@@ -758,6 +759,8 @@ void JsonTable::resetColumnMap()
         if(columnWidth.contains(key))
             columnOccupy.remove(key);
     }
+
+    maxColumnOccupy = columnOccupy;
 }
 
 void JsonTable::calculateColumnMap(double viewPortWidth)
@@ -800,9 +803,17 @@ void JsonTable::calculateColumnMap(double viewPortWidth)
         // step by step threshold-based
         // all columns     : if still decrease needed do it on all columns
 
-        updateColumnOccupy(viewPortWidth, 600, 400); // columns bigger than 600 contributes but floor-value is 400
-        updateColumnOccupy(viewPortWidth, 300, 200);
-        updateColumnOccupy(viewPortWidth, 150, 100);
+        updateColumnOccupy(viewPortWidth, 4000, 4000); // columns bigger than 4000 contributes but floor-value is 3500
+        updateColumnOccupy(viewPortWidth, 3000, 3000);
+        updateColumnOccupy(viewPortWidth, 2000, 2000);
+        updateColumnOccupy(viewPortWidth, 1500, 1500);
+        updateColumnOccupy(viewPortWidth, 1200, 1200);
+        updateColumnOccupy(viewPortWidth, 1000, 1000);
+        updateColumnOccupy(viewPortWidth, 800, 800);
+        updateColumnOccupy(viewPortWidth, 600, 600);
+        updateColumnOccupy(viewPortWidth, 400, 400);
+        updateColumnOccupy(viewPortWidth, 200, 200);
+        updateColumnOccupy(viewPortWidth, 150, 150);
         updateColumnOccupy(viewPortWidth); // all columns contribute
 
         foreach (int key, columnOccupy.keys())
@@ -825,6 +836,7 @@ double JsonTable::calculateWrapHeight(double occupy, double width, double fontSi
 void JsonTable::updateColumnOccupy(double viewPortWidth, int upperThreshold, int breakPoint)
 {
     double diff,total = 0, totalGivenWidth=0,totalOccupy=0, selectedSum=0;
+    QMap<int, double> initialMap = columnOccupy;
 
     foreach (int key, columnWidth.keys())
     {
@@ -846,7 +858,7 @@ void JsonTable::updateColumnOccupy(double viewPortWidth, int upperThreshold, int
 
     if(diff > 0)
     {
-        double val;
+        double val, totalDecrease = 0, weight;
         foreach (int key, columnOccupy.keys())
         {
             if(columnOccupy.value(key) > upperThreshold)
@@ -855,7 +867,18 @@ void JsonTable::updateColumnOccupy(double viewPortWidth, int upperThreshold, int
                 if(val < breakPoint)
                     val = breakPoint;
 
+                totalDecrease += columnOccupy[key] - val;
                 columnOccupy[key] = val;
+            }
+        }
+
+        //justify columns based on their weight
+        foreach (int key, columnOccupy.keys())
+        {
+            if(columnOccupy.value(key) > upperThreshold)
+            {
+                weight = columnOccupy.value(key) / maxColumnOccupy.value(key); // 0~1
+                columnOccupy[key] = initialMap.value(key) - totalDecrease * weight;
             }
         }
     }

@@ -115,7 +115,7 @@ public:
     QString default_background_color, default_color, default_font_family;
     double default_height, default_font_size;
     int default_hPadding, default_vPadding;
-    QMap<int, double> columnOccupy, columnWidth;
+    QMap<int, double> columnOccupy, maxColumnOccupy, columnWidth;
 
 };
 

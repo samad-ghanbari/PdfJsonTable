@@ -66,7 +66,7 @@ int main(int argc, char *argv[])
     row = table->createObjects("text", {"Lorem-6", "PCM", "CX600X16", "10G 3/0/0"},style);
     table->addRowToTable(row);
 
-    row = table->createObjects("text", {"Lorem-7", "Switch", "Lorem ipsum odor amet, consectetuer adipiscing elit.", "1G 10/0/0"},style);
+    row = table->createObjects("text", {"Lorem-7", "Switch", "Lorem ipsum odor amet, consectetuer adipiscing elit.Lorem ipsum odor amet, consectetuer adipiscing elit.Lorem ipsum odor amet, consectetuer adipiscing elit.", "1G 10/0/0"},style);
     table->addRowToTable(row);
 
     row = table->createObjects("text", {"Lorem-8", "Switch", "CX600X16", "10G 11/0/0"},style);
