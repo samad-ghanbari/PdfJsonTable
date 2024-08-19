@@ -5,7 +5,7 @@
 #include <QJsonArray>
 #include <QTextStream>
 #include <QDebug>
-#include "lib/tabledata.h"
+//#include "lib/tabledata.h"
 #include "lib/tableTemplate.h"
 
 int main(int argc, char *argv[])
@@ -13,7 +13,12 @@ int main(int argc, char *argv[])
     QApplication a(argc, argv);
 
     TableTemplate tableTemplate(4);
-    tableTemplate.setHeader({"Menu-1", "Menu-2", "Menu-3", "Menu-4"});
+    // page title
+    tableTemplate.appendTitle({"img", "text","img"}, {":/danet.png", "DaNet Report", ":/tct.png"}, {"", "#005", ""}, {"left", "center", "right"});
+    tableTemplate.appendTitle({"text", "text"}, {"2-BA Saloon Data", "1403/05/29"}, {"#050", "#500"}, {"left", "right"});
+
+    //table
+    tableTemplate.setTableHeader({"Menu-1", "Menu-2", "Menu-3", "Menu-4"});
 
     tableTemplate.appentRow({"Lorem-1 ipsum odor amet, consectetuer adipiscing elit. Blandit eget vulputate cubilia convallis penatibus vivamus ante ante? Odio felis libero auctor elit, parturient donec porta tristique nullam. Scelerisque penatibus maximus erat aptent egestas mus. Eu sed euismod, hac semper arcu tortor ullamcorper vestibulum.", "Lorem-1", "Ipsum-1", "L-I-1"});
     tableTemplate.appentRow({"Lorem-2", "Data", "CX600X16"});
@@ -58,13 +63,10 @@ int main(int argc, char *argv[])
     double width = pdf.getViewPortWidth();
     QJsonArray table = tableTemplate.getTable(width,2);
 
-    JsonTable *pageHeader = tableData::getHeader();
-    pageHeader->updateSameWidth(width);
-    pageHeader->updateHeight();
-    pageHeader->updateRowSpan(true);
+    QJsonArray pageHeader = tableTemplate.getTitle(width);
 
-    pdf.setPageHeader(&pageHeader->table);
-    pdf.setTable(&table,{1});
+    pdf.setPageHeader(&pageHeader);
+    pdf.setTable(&table,{0});
     pdf.print();
 
 
