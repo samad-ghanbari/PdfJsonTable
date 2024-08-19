@@ -4,7 +4,38 @@
 #include "lib/jsontable.h"
 #include <QJsonArray>
 #include <QJsonObject>
+/*
+ *  usage
+ *
+    JsonTable *pageHeader = tableData::getHeader();
+    JsonTable* table = tableData::getTable();
 
+    PdfJsonTable *pdf = new PdfJsonTable("Primary.pdf", "test", "danet","A3","landscape");
+    int width = pdf->getViewPortWidth();
+    pageHeader->updateSameWidth(width);
+
+    pageHeader->updateHeight();
+    pageHeader->updateRowSpan(true);
+    // table
+    table->updateFairCell(width, true);
+    table->updateRowSpan(2);
+
+    table->saveJsonAs("table.json");
+
+//    QByteArray bytes = table->toByteArray(table->table);
+//    QTextStream ts(stdout);
+//    ts << bytes << endl;
+
+    pdf->setPageHeader(&pageHeader->table);
+//    QList<int> list;
+//    list << 0;
+    pdf->setTable(&table->table, {0});
+
+
+    pdf->print();
+
+
+ */
 class tableData
 {
 public:

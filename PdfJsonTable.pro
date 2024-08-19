@@ -18,7 +18,9 @@ else: unix:!android: target.path = /opt/$${TARGET}/bin
 
 HEADERS += \
     lib/jsontable.h \
-    lib/pdfjsontable.h
+    lib/pdfjsontable.h \
+    lib/tableTemplate.h \
+    lib/tabledata.h
 
 DISTFILES +=
 
